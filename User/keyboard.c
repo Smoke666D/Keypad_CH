@@ -9,14 +9,14 @@
 
 /*----------------------- Structures ----------------------------------------------------------------*/
 static xKeyPortStruct xKeyPortMass[KEYBOARD_COUNT]={
-		{ GPIOA, KL1_Pin },
-		{ GPIOB, KL2_Pin },
-		{ GPIOB, KL3_Pin },
-		{ GPIOB, KL4_Pin },
-		{ GPIOB, KL5_Pin },
-		{ GPIOB, KL6_Pin },
-		{ GPIOB, KL7_Pin },
-		{ GPIOB, KL8_Pin },
+		{ KL1_GPIO_Port, KL1_Pin },
+		{ KL2_GPIO_Port, KL2_Pin },
+		{ KL3_GPIO_Port, KL3_Pin },
+		{ KL4_GPIO_Port, KL4_Pin },
+		{ KL5_GPIO_Port, KL5_Pin },
+		{ KL6_GPIO_Port, KL6_Pin },
+		{ KL7_GPIO_Port, KL7_Pin },
+		{ KL8_GPIO_Port, KL8_Pin },
 };
 
 

@@ -32,18 +32,10 @@
 
 /* Global Variable */
 TaskHandle_t ProcessTaskHandle;
-
 TaskHandle_t KeyboardTaskHandle;
-
-
 TaskHandle_t DefautTask_Handler;
-
-
 TaskHandle_t CanOpenProcessHandle;
-
-
 TaskHandle_t CanOpenPeriodicHandle;
-
 
 
 
