@@ -318,8 +318,6 @@ void vSetBrigth(uint8_t brigth)
 void vLedProcess( void )
 {
 	/*Cбравысваем флаг тамера 4*/
-
-	
 	uint8_t temp_led;
 	led_brigth_counter++;
     if (led_brigth_counter>(MAX_BRIGTH_COUNTER))

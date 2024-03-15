@@ -36,6 +36,7 @@ Debug \
 FreeRTOS \
 FreeRTOS/portable/GCC/RISC-V \
 FreeRTOS/portable/MemMang \
+HWLIB \
 Peripheral/src \
 Startup \
 User \

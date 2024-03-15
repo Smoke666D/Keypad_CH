@@ -104,6 +104,7 @@ int main(void)
 
      vFDInit();
      vLedInit();
+     vInitKeybord();
      vSetupKeyboard();
      vProceesInit();
      vCanOpenInit(CAN1);

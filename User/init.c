@@ -1,5 +1,6 @@
 #include "init.h"
 #include "main.h"
+#include "drivers.h"
 
 static void MX_GPIO_Init( void );
 static void MX_IWDG_Init(void);
@@ -8,6 +9,45 @@ static void MX_TIM3_Init(void);
 static void nvic_config(void);
 static void InitBaseTick( void );
 static void MX_TIM2_Init(void);
+
+
+
+
+static uint8_t STATUS[KEY_COUNT];
+static uint8_t  COUNTERS[KEY_COUNT];
+static  const xKeyPortStruct xKeyPortMass[KEY_COUNT]={
+        { KL1_GPIO_Port, KL1_Pin },
+        { KL2_GPIO_Port, KL2_Pin },
+        { KL3_GPIO_Port, KL3_Pin },
+        { KL4_GPIO_Port, KL4_Pin },
+        { KL5_GPIO_Port, KL5_Pin },
+        { KL6_GPIO_Port, KL6_Pin },
+        { KL7_GPIO_Port, KL7_Pin },
+        { KL8_GPIO_Port, KL8_Pin },
+};
+
+FlagStatus fPortState (uint8_t i)
+{
+    return GPIO_ReadInputDataBit( xKeyPortMass[i].KeyPort, xKeyPortMass[i].KeyPin );
+}
+/*
+ *
+ *
+ */
+void vInitKeybord()
+{
+    KeybaordStruct_t KeyboardInit;
+    KeyboardInit.KEYBOARD_COUNT    = KEY_COUNT;
+    KeyboardInit.COUNTERS          = COUNTERS;
+    KeyboardInit.STATUS            = STATUS;
+    KeyboardInit.REPEAT_TIME       = vFDGetRegState( REPEAT_TIME_ADDRESS );
+    KeyboardInit.KEYDOWN_HOLD_TIME = vFDGetRegState( KEYDOWN_HOLD_ADDRESS) ;
+    KeyboardInit.KEYDOWN_DELAY     = vFDGetRegState( KEYDOWN_DELAY_ADRRES);
+    KeyboardInit.KEYBOARD_PERIOD   = vFDGetRegState(KEYBOARD_PERIOD_ADRRES)*10U;
+    KeyboardInit.getPortCallback = &fPortState;
+    eKeyboardInit(&KeyboardInit);
+
+}
 
 /*
 Функция инициализации перефирии устройства
@@ -34,6 +74,7 @@ void vInit_DeviceConfig( void )
 	MX_TIM2_Init();
 	MX_TIM3_Init( );
 	MX_IWDG_Init();
+
 	return;
 }
 
