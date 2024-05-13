@@ -56,7 +56,7 @@ StaticEventGroup_t xCreatedEventGroup;
  */
 int main(void)
 {
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
     SystemCoreClockUpdate();
     Delay_Init();
     USART_Printf_Init(115200);
@@ -75,7 +75,7 @@ int main(void)
                             (UBaseType_t    )DEFAULT_TASK_PRIO,
                             (TaskHandle_t*  )&DefautTask_Handler);
 
-    xTaskCreate((TaskFunction_t )vKeyboardTask,
+   xTaskCreate((TaskFunction_t )vKeyboardTask,
                         (const char*    )"KeyboardTask",
                         (uint16_t       )KEYBOARD_STK_SIZE,
                         (void*          )NULL,
@@ -88,13 +88,13 @@ int main(void)
                     (void*          )NULL,
                     (UBaseType_t    )PROCESS_TASK_PRIO,
                     (TaskHandle_t*  )&ProcessTaskHandle);
-    xTaskCreate((TaskFunction_t )vCanOpenProcess,
+   xTaskCreate((TaskFunction_t )vCanOpenProcess,
                           (const char*    )"CanOpenProcess",
                           (uint16_t       )CAN_OPEN_STK_SIZE,
                           (void*          )NULL,
                           (UBaseType_t    )CAN_OPEN_TASK_PRIO,
                           (TaskHandle_t*  )&CanOpenProcessHandle);
-   xTaskCreate((TaskFunction_t )vCanOpenPeriodicProcess,
+  xTaskCreate((TaskFunction_t )vCanOpenPeriodicProcess,
                        (const char*    )"CanOpenPeriodic",
                        (uint16_t       )PERIODIC_CAN_STK_SIZE,
                        (void*          )NULL,
@@ -132,9 +132,9 @@ void StartDefaultTask(void *argument)
   for(;;)
   {
 
-  //  xEventGroupWaitBits(xResetEventHandle,RESTART_DISABLE,pdFALSE,pdFALSE,portMAX_DELAY );
+    xEventGroupWaitBits(xResetEventHandle,RESTART_DISABLE,pdFALSE,pdFALSE,portMAX_DELAY );
     vTaskDelay(500);
-    IWDG_ReloadCounter();
+  //  IWDG_ReloadCounter();
     printf("We alive!!\r\n");
   }
   /* USER CODE END 5 */
