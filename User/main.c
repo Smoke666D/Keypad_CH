@@ -19,6 +19,7 @@
 #include "process.h"
 #include "CanOpenNode.h"
 #include "system_init.h"
+#include "hal_wdt.h"
 /* Global define */
 
 
@@ -42,8 +43,6 @@ int main(void)
     vSYSqueueInit ();
     vFDInit();
     vLedInit();
-    vInitKeybord();
-    vSetupKeyboard();
     vProceesInit();
     vCanOpenInit(CAN1);
     HAL_WDTInit();

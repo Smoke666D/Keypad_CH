@@ -10,7 +10,7 @@
 
 #include "main.h"
 #include "CO_ODinterface.h"
-#include "keyboard.h"
+#include "hw_lib_keyboard.h"
 #include "led.h"
 #include "CANopen.h"
 #include "OD.h"

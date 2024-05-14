@@ -68,4 +68,5 @@ void vLedInit();
 void vSetBackLigth(uint8_t brigth);
 void vLedDriverStart(void);
 void vLedProcess( void );
+void TimersCallback();
 #endif /* INC_LED_H_ */

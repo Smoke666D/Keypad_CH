@@ -11,6 +11,8 @@
 *******************************************************************************/
 #include "ch32v20x_it.h"
 #include "main.h"
+#include "device_config.h"
+#include "hal_gpio.h"
 
 void NMI_Handler(void) __attribute__((interrupt()));
 void HardFault_Handler(void) __attribute__((interrupt()));
@@ -18,7 +20,7 @@ void   USB_HP_CAN1_TX_IRQHandler(void) __attribute__((interrupt()));  /* USB HP 
 void   USB_LP_CAN1_RX0_IRQHandler(void) __attribute__((interrupt())); /* USB LP and CAN1RX0 */
 void   CAN1_RX1_IRQHandler(void) __attribute__((interrupt()));        /* CAN1 RX1 */
 void   CAN1_SCE_IRQHandler(void) __attribute__((interrupt()));       /* CAN1 SCE */
-void TIM3_IRQHandler(void) __attribute__((interrupt()));
+//void TIM3_IRQHandler(void) __attribute__((interrupt()));
 /*********************************************************************
  * @fn      NMI_Handler
  *
@@ -92,19 +94,3 @@ void   CAN1_SCE_IRQHandler(void)
     HAL_CAN_ErrorCallback ( CAN1);
 }
 
-void  TIM3_IRQHandler(void)
-{
-
-
-    if   (SET == TIM_GetITStatus(TIM3, TIM_IT_Update) )
-    {
-        //§³§Ò§â§Ñ§ã§í§Ó§Ñ§Ö§Þ LACH
-         GPIO_ResetBits(CS_GPIO_Port, CS_Pin);
-         vLedProcess();
-         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
-         //§µ§ã§ä§Ñ§ß§Ñ§Ó§Ý§Ú§Ó§Ñ§Ö§Þ LACH
-         GPIO_SetBits(CS_GPIO_Port, CS_Pin);
-
-
-    }
-}

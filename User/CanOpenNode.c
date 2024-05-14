@@ -12,6 +12,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "system_init.h"
+
 /*
  * Локальные переменные
  */

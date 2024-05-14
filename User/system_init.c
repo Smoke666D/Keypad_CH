@@ -7,7 +7,7 @@
 #include "system_init.h"
 #include "led.h"
 #include "CanOpenNode.h"
-#include "keyboard.h"
+#include "keyboard_task.h"
 #include "process.h"
 #include "hal_wdt.h"
 
@@ -82,8 +82,6 @@ void vSYStaskInit ( void )
 void vSYSqueueInit ( void )
 {
      *( xKeyboardQueue()) = xQueueCreateStatic( 16U, sizeof( KeyEvent ),ucQueueStorageArea, &xStaticQueue );
-//  *( pCANRXgetQueue() ) = xQueueCreate( CANRX_QUEUE_SIZE, sizeof( CAN_FRAME_TYPE));
-  //*( pCANTXgetQueue() ) = xQueueCreate( CANTX_QUEUE_SIZE, sizeof( CAN_TX_FRAME_TYPE ) );
 }
 /*----------------------------------------------------------------------------*/
 void vSYSeventInit ( void )
@@ -91,9 +89,6 @@ void vSYSeventInit ( void )
     xResetEventHandle =   xEventGroupCreateStatic( &xCreatedEventGroup );
 
 }
-
-
-
 
 void StartDefaultTask(void *argument)
 {

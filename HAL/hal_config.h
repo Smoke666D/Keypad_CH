@@ -27,6 +27,9 @@
 
 #define  MAX_GPIO_PORT 7
 
+
+
+
 #if MCU == APM32
 
 #define   PORT_A  GPIOA
