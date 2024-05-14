@@ -52,7 +52,7 @@
 #define PWM_PERIOD_SUBINDEX		   0x01
 #define PWM_DUTY_SUBINDEX		   0x02
 
-
+TaskHandle_t * xProcessTaskHandle ();
 void vProcessTask( void * argument );
 void vProceesInit( void );
 void vCanOpen_Init(void *argument);

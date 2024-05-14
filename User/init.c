@@ -3,7 +3,6 @@
 #include "drivers.h"
 
 static void MX_GPIO_Init( void );
-static void MX_IWDG_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
 static void nvic_config(void);
@@ -187,20 +186,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitSturcture.GPIO_Mode = GPIO_Mode_IPU;
   GPIO_Init(GPIOB, &GPIO_InitSturcture);
 
-}
-
-/**
-  * @brief IWDG Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_IWDG_Init(void)
-{
-    IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
-    IWDG_SetPrescaler(IWDG_Prescaler_64);
-    IWDG_SetReload(4095);
-    IWDG_ReloadCounter();
-    IWDG_Enable();
 }
 
 /**

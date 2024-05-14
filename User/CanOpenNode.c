@@ -11,9 +11,15 @@
 #include "OD.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "system_init.h"
 /*
  * Локальные переменные
  */
+
+
+static TaskHandle_t  pCanOpenProcessTaskHandle    __SECTION(RAM_SECTION_CCMRAM);
+static TaskHandle_t  pCanOpenPeriodicTaskHandle    __SECTION(RAM_SECTION_CCMRAM);
+
 static CO_t* CO;
 static uint32_t co_heap_used;
 static CO_NMT_reset_cmd_t reset = CO_RESET_NOT;
@@ -26,6 +32,16 @@ static CAN_TypeDef *pcan;
 #define SDO_CLI_TIMEOUT_TIME            500
 #define SDO_CLI_BLOCK                   false
 #define OD_STATUS_BITS                  NULL
+
+TaskHandle_t * xCanOpenProcessTaskHandle ()
+{
+    return  &pCanOpenProcessTaskHandle ;
+}
+
+TaskHandle_t * xCanOpenPeriodicTaskHandle ()
+{
+    return  & pCanOpenPeriodicTaskHandle ;
+}
 
 
 void vCanOpenInit(CAN_TypeDef *hcan)

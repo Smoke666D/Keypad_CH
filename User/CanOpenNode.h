@@ -10,6 +10,8 @@
 
 #include "main.h"
 
+TaskHandle_t * xCanOpenProcessTaskHandle ();
+TaskHandle_t * xCanOpenPeriodicTaskHandle ();
 void vCanOpenInit(CAN_TypeDef *hcan);
 void vCanOpenProcess(void *argument);
 void vCanOpenPeriodicProcess(void *argument);

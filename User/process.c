@@ -6,10 +6,21 @@
  */
 
 #include "process.h"
+#include "system_init.h"
 
 
+static TaskHandle_t  pProcessTaskHandle    __SECTION(RAM_SECTION_CCMRAM);
+static uint8_t key_mask;
+static uint8_t data;
 static QueueHandle_t     pKeyboard        = NULL;
 static KeyEvent          TempEvent        = { 0U };
+
+TaskHandle_t * xProcessTaskHandle ()
+{
+    return  &pProcessTaskHandle ;
+}
+
+
 
 static ODR_t OD_writeLed(OD_stream_t *stream,const  void *buf, OD_size_t count, OD_size_t *countWritten);
 static ODR_t OD_writeBlink(OD_stream_t *stream,const void *buf, OD_size_t count, OD_size_t *countWritten);
@@ -86,7 +97,7 @@ void vProceesInit( void)
 {
 
 
-	pKeyboard = pGetKeyboardQueue();
+	pKeyboard = *( xKeyboardQueue());
 	OD_extension_init(OD_ENTRY_H2000_digitalInputModuleKeysStates, &OD_KEY_extension);
 	OD_extension_init(OD_ENTRY_H2001_digitalOutputModuleLED_ON, &OD_LED_data_extension);
 	OD_extension_init(OD_ENTRY_H2002_digitalOutputModuleLEDBlink, &OD_BLINK_data_extension);
@@ -334,18 +345,17 @@ ODR_t OD_writeBRIGTH(OD_stream_t *stream,const void *buf,
      return ( ODR_OK );
 }
 
-static uint8_t key_mask;
-static  uint8_t data;
+
 /*
  *
  */
 void vProcessTask( void * argument )
 {
-    
 	for(;;)
 	{
 		/*Обработка событий от клавиатуры*/
 		vTaskDelay(1);
+
 		if ( uxQueueMessagesWaiting(pKeyboard) != 0)
 		{
 			xQueueReceive( pKeyboard, &TempEvent,portMAX_DELAY );
@@ -379,7 +389,6 @@ void vProcessTask( void * argument )
 				   key_mask = 0U;
 				   break;
 			}
-			
 			OD_get_value(OD_ENTRY_H2000_digitalInputModuleKeysStates,0x01,&data,1,true);
 			if ( TempEvent.Status == MAKECODE )
 			{
@@ -391,9 +400,7 @@ void vProcessTask( void * argument )
 			}
 			OD_set_value(OD_ENTRY_H2000_digitalInputModuleKeysStates,0x01,&data,1,true);
 			OD_requestTPDO(OD_KEY_flagsPDO,1);
-
 		}
-
 	}
 }
 

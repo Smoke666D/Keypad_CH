@@ -518,20 +518,6 @@ void CAN_GetRxMessage(CAN_TypeDef  *hcan, uint32_t RxFifo,  CO_CANrxMsg_t * pCAN
 
     return;
 }
-/*
- *
- */
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_TypeDef  *hcan)
-{
-	prv_read_can_received_msg(hcan, CAN_FIFO0);
-}
-/*
- *
- */
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_TypeDef  *hcan)
-{
-	prv_read_can_received_msg(hcan, CAN_FIFO1);
-}
 
 
 void HAL_CAN_ErrorCallback(CAN_TypeDef  *hcan)
