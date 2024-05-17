@@ -15,9 +15,9 @@
 #define KL1Pin   GPIO_5
 #define KL1_Port PORT_A
 #define KL2_8_Port PORT_B
-#define KL3Pin GPIO_2
 #define KL2Pin GPIO_1
-#define KL4Pin GPIO_Pin_3
+#define KL3Pin GPIO_2
+#define KL4Pin GPIO_3
 #define KL5Pin GPIO_4
 #define KL6Pin GPIO_5
 #define KL7Pin GPIO_6

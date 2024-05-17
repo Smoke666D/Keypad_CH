@@ -10,6 +10,9 @@
 #include "device_config.h"
 #include "hal_gpio.h"
 #include "hal_timers.h"
+#include "hal_dma.h"
+#include "ch32v20x_spi.h"
+#include "string.h"
 
 static uint8_t LED_ON[SPI_PACKET_SIZE] 			=         { 0x00 , 0x00 , 0x00 };
 static uint8_t LED_BLINK[SPI_PACKET_SIZE]    	=         { 0x00 , 0x00 , 0x00 };
@@ -22,25 +25,50 @@ static uint16_t led_brigth_counter 		= 0;
 static uint16_t led_blink_counter 		= 0;
 static uint8_t BlinkON					= 1;
 static uint8_t data[SPI_PACKET_SIZE];
+static uint8_t tx_counter;
+
+void SendData()
+{
+    tx_counter = 0;
+    SPI_I2S_ITConfig( SPI2, SPI_I2S_IT_TXE , ENABLE );
+}
+
+void TransmirData()
+{
+    if (tx_counter++ >= 3)
+    {
+        SPI_I2S_ITConfig( SPI2, SPI_I2S_IT_TXE , DISABLE );
+        SPI_I2S_ClearFlag(SPI2,SPI_I2S_FLAG_OVR);
+        HAL_SetBit(CS_Port, CSPin);
+        HAL_TiemrEneblae(TIMER3);
+    }
+    else
+    {
+        SPI_I2S_SendData( SPI2, data[tx_counter-1] );
+    }
 
 
 
+}
+
+void LC()
+{
+    HAL_DMA_Disable(DMA1_CH5);
+  SPI_I2S_ClearFlag(SPI2,SPI_I2S_FLAG_OVR);
+   while (SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_BSY) == SET);
+   HAL_SetBit(CS_Port, CSPin);
+  //  HAL_TiemrEneblae(TIMER3);
+}
 
 static void vSPI_Transmit( )
 {
-  uint32_t tickstart = TIM_GetCounter(TIM1);
   DMA_SetCurrDataCounter(DMA1_Channel5,3);
-  DMA_Cmd(DMA1_Channel5, ENABLE);
-  while (DMA_GetFlagStatus(DMA1_FLAG_TC5)==RESET)
-  {
-	  if ( abs((TIM_GetCounter(TIM1) - tickstart)) >=  SPI_TIMEOUT)
-	  {
-	     break;
-	  }
-  }
-  DMA_Cmd(DMA1_Channel5, DISABLE);
-  DMA_ClearFlag(DMA1_FLAG_GL5);
-  SPI_I2S_ClearFlag(SPI2,SPI_I2S_FLAG_OVR);
+  HAL_DMA_Enable(DMA1_CH5);
+//  while (SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_BSY) == SET);
+// HAL_DMA_Disable(DMA1_CH5);
+ // DMA_ClearFlag(DMA1_FLAG_GL5);
+  //SPI_I2S_ClearFlag(SPI2,SPI_I2S_FLAG_OVR);
+  //HAL_SPI_SetTXCallback(&TransmirData);
   return;
 }
 /*
@@ -65,13 +93,16 @@ void vLedInit()
     vSetBrigth(MAX_BRIGTH);
     return;
 }
+
+
+
 /*
  *
  */
 void vLedDriverStart(void)
 {
-	SPI_Cmd(SPI2, ENABLE);
-	DMA_Tx_Init(DMA1_Channel5, (u32)&SPI2->DATAR, (u32)data,3);
+   HAL_DMAInitIT(DMA1_Channel5,MTOP,3,(u32)&SPI2->DATAR, (u32)data,0,&LC);
+   // HAL_SPI_SetTXCallback(& TransmirData);
 	HAL_TiemrEneblae(TIMER3);
 	HAL_TiemrEneblae(TIMER2);
 	return;
@@ -179,8 +210,7 @@ void vLedProcess( void )
 {
 	/*Cбравысваем флаг тамера 4*/
 	uint8_t temp_led;
-	led_brigth_counter++;
-    if (led_brigth_counter>(MAX_BRIGTH_COUNTER))
+    if (++led_brigth_counter>(MAX_BRIGTH_COUNTER))
     {
     	led_brigth_counter = 0;
     }
@@ -209,9 +239,8 @@ void vLedProcess( void )
     {
     	BlinkON = 1U;
     }
-    data[0] =0;
-    data[1] =0;
-    data[2] =0;
+
+    memset(data,0,3);
     temp_led = ~(LED_ON[0]  | LED_ON[1] | LED_ON[2] );
 	if (led_brigth_counter < backligch_brigth)
 	{
@@ -225,14 +254,19 @@ void vLedProcess( void )
 	 	data[1]|=LED_ON[1];
 	 	data[0]|=LED_ON[2];
     }
+
     vSPI_Transmit();
+
+	//SendData();
     return;
 }
 
 
 void TimersCallback()
 {
-      HAL_ResetBit(CS_Port, CSPin);
-      vLedProcess();
-      HAL_SetBit(CS_Port, CSPin);
+    //HAL_TiemrDisable(TIMER3);
+     HAL_ResetBit(CS_Port, CSPin);
+     vLedProcess();
+   //  HAL_SetBit(CS_Port, CSPin);
+
 }

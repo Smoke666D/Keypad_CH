@@ -20,8 +20,6 @@ TaskHandle_t * xProcessTaskHandle ()
     return  &pProcessTaskHandle ;
 }
 
-
-
 static ODR_t OD_writeLed(OD_stream_t *stream,const  void *buf, OD_size_t count, OD_size_t *countWritten);
 static ODR_t OD_writeBlink(OD_stream_t *stream,const void *buf, OD_size_t count, OD_size_t *countWritten);
 static ODR_t OD_writeBRIGTH(OD_stream_t *stream,const void *buf,OD_size_t count, OD_size_t *countWritten);

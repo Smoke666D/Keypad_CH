@@ -35,6 +35,8 @@ BitState_t fPortState (uint8_t i)
             return HAL_GetBit( KL2_8_Port, KL6Pin  );
         case 6:
             return HAL_GetBit( KL2_8_Port, KL7Pin  );
+        case 7:
+            return HAL_GetBit( KL2_8_Port, KL8Pin  );
         default:
             return 0;
     }

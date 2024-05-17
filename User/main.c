@@ -19,7 +19,6 @@
 #include "process.h"
 #include "CanOpenNode.h"
 #include "system_init.h"
-#include "hal_wdt.h"
 /* Global define */
 
 
@@ -45,12 +44,9 @@ int main(void)
     vLedInit();
     vProceesInit();
     vCanOpenInit(CAN1);
-    HAL_WDTInit();
     vTaskStartScheduler();
-    while(1)
-    {
-        printf("shouldn't run at here!!\n");
-    }
+    while(1);
+
 }
 
 

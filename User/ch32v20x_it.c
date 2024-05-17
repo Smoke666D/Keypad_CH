@@ -16,11 +16,9 @@
 
 void NMI_Handler(void) __attribute__((interrupt()));
 void HardFault_Handler(void) __attribute__((interrupt()));
-void   USB_HP_CAN1_TX_IRQHandler(void) __attribute__((interrupt()));  /* USB HP and CAN1 TX */
-void   USB_LP_CAN1_RX0_IRQHandler(void) __attribute__((interrupt())); /* USB LP and CAN1RX0 */
-void   CAN1_RX1_IRQHandler(void) __attribute__((interrupt()));        /* CAN1 RX1 */
-void   CAN1_SCE_IRQHandler(void) __attribute__((interrupt()));       /* CAN1 SCE */
-//void TIM3_IRQHandler(void) __attribute__((interrupt()));
+//void   USB_LP_CAN1_RX0_IRQHandler(void) __attribute__((interrupt())); /* USB LP and CAN1RX0 */
+//void   CAN1_RX1_IRQHandler(void) __attribute__((interrupt()));        /* CAN1 RX1 */
+
 /*********************************************************************
  * @fn      NMI_Handler
  *
@@ -55,29 +53,7 @@ void HardFault_Handler(void)
   {
   }
 }
-
-void   USB_HP_CAN1_TX_IRQHandler(void)
-{
-
-
-    if ( CAN_GetFlagStatus(CAN1,CAN_FLAG_RQCP0) == SET )
-    {
-        CAN_ClearFlag (CAN1, CAN_FLAG_RQCP0);
-
-        CAN_SendMessage();
-    }
-    if ( CAN_GetFlagStatus(CAN1,CAN_FLAG_RQCP1) == SET )
-    {
-        CAN_ClearFlag (CAN1, CAN_FLAG_RQCP1);
-        CAN_SendMessage();
-    }
-    if ( CAN_GetFlagStatus(CAN1,CAN_FLAG_RQCP2) == SET )
-    {
-        CAN_ClearFlag (CAN1, CAN_FLAG_RQCP2);
-        CAN_SendMessage();
-    }
-     CAN_ClearITPendingBit(CAN1, CAN_IT_TME);
-}
+/*
 void   USB_LP_CAN1_RX0_IRQHandler(void)
 {
 
@@ -88,9 +64,4 @@ void   CAN1_RX1_IRQHandler(void)
 
     prv_read_can_received_msg(CAN1,CAN_FIFO1);
 }
-void   CAN1_SCE_IRQHandler(void)
-{
-
-    HAL_CAN_ErrorCallback ( CAN1);
-}
-
+*/

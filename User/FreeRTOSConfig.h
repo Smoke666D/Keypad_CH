@@ -90,6 +90,7 @@
 #define configMTIME_BASE_ADDRESS 	 ( 0 )
 #define configMTIMECMP_BASE_ADDRESS  ( 0 )
 
+//#define configISR_STACK_SIZE_WORDS ( 500 )
 
 #define configSUPPORT_STATIC_ALLOCATION 1
 #define configUSE_PREEMPTION			1
@@ -99,7 +100,7 @@
 #define configTICK_RATE_HZ				( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES			( 15 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short )128) /* Can be as low as 60 but some of the demo tasks that use this constant require it to be higher. */
-#define configTOTAL_HEAP_SIZE			( ( size_t ) (2 * 1024 ) )
+#define configTOTAL_HEAP_SIZE			( ( size_t ) (1 * 1024 ) )
 #define configMAX_TASK_NAME_LEN			( 16 )
 #define configUSE_TRACE_FACILITY		0
 #define configUSE_16_BIT_TICKS			0
@@ -139,7 +140,7 @@ to exclude the API function. */
 #define INCLUDE_xTimerPendFunctionCall		1
 #define INCLUDE_xTaskAbortDelay				0
 #define INCLUDE_xTaskGetHandle				1
-#define INCLUDE_xSemaphoreGetMutexHolder	0
+#define INCLUDE_xSemaphoreGetMutexHolder	1
 
 
 /* Normal assert() semantics without relying on the provision of an assert.h

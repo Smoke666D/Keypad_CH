@@ -28,12 +28,16 @@
 
 #include "301/CO_driver.h"
 #include "CO_driver_ST32F103.h"
+#include "CO_driver_target.h"
+#include "hal_can.h"
 
 /* CAN masks for identifiers */
 #define CANID_MASK                              0x07FF  /*!< CAN standard ID mask */
 #define FLAG_RTR                                0x8000  /*!< RTR flag, part of identifier */
 /* Mutex for atomic access */
 static SemaphoreHandle_t co_mutex = NULL;
+
+void prv_read_can_received_msg( uint32_t fifo);
 
 /* Semaphore for main app thread synchronization */
 SemaphoreHandle_t co_drv_app_thread_sync_semaphore = NULL;
@@ -90,7 +94,8 @@ co_drv_mutex_unlock(void) {
 void CO_CANsetConfigurationMode(void *CANptr){
     /* Put CAN module in configuration mode */
 	 if (CANptr != NULL) {
-	     CAN_OperatingModeRequest(CANptr,CAN_OperatingMode_Initialization);
+	     HAL_CANToInitMode();
+
 	 }
 }
 
@@ -98,7 +103,7 @@ void CO_CANsetConfigurationMode(void *CANptr){
 /******************************************************************************/
 void CO_CANsetNormalMode(CO_CANmodule_t *CANmodule){
     /* Put CAN module in normal mode */
-	  if (CANmodule->CANptr != NULL && CAN_OperatingModeRequest(CANmodule->CANptr,CAN_OperatingMode_Normal) == CAN_ModeStatus_Success) {
+	  if (CANmodule->CANptr != NULL && HAL_CANToOperatingMode() == CAN_ModeStatus_Success) {
 	        CANmodule->CANnormal = true;
 	  }
 }
@@ -115,8 +120,8 @@ CO_ReturnError_t CO_CANmodule_init(
         uint16_t                CANbitRate)
 {
     uint16_t i;
-    CAN_InitTypeDef       CAN_InitSturcture = {0};
-    CAN_FilterInitTypeDef  sFilterConfig;
+;
+
 
 
     /* verify arguments */
@@ -148,73 +153,16 @@ CO_ReturnError_t CO_CANmodule_init(
         txArray[i].bufferFull = false;
     }
 
-    /* Configure CAN module registers */
-    CAN_InitSturcture.CAN_Mode = CAN_Mode_Normal;
-    CAN_InitSturcture.CAN_SJW  = CAN_SJW_4tq;
-    CAN_InitSturcture.CAN_BS1  = CAN_BS1_12tq;
-    CAN_InitSturcture.CAN_BS2  = CAN_BS2_5tq;
-    CAN_InitSturcture.CAN_TTCM = DISABLE;
-    CAN_InitSturcture.CAN_ABOM = ENABLE;
-    CAN_InitSturcture.CAN_AWUM = DISABLE;
-    CAN_InitSturcture.CAN_NART = ENABLE;
-    CAN_InitSturcture.CAN_RFLM = DISABLE;
-    CAN_InitSturcture.CAN_TXFP = DISABLE;
 
-    /* Configure CAN timing */
-        switch (CANbitRate)
-        {
-            case 1000: CAN_InitSturcture.CAN_Prescaler  = 2;
-                   break;
-            case 500:  CAN_InitSturcture.CAN_Prescaler = 4;
-                   break;
-            case 250:  CAN_InitSturcture.CAN_Prescaler = 8;
-                   break;
-            default:
-            case 125:  CAN_InitSturcture.CAN_Prescaler = 16;
-                  break;
-            case 100:  CAN_InitSturcture.CAN_Prescaler = 20;
-                 break;
-            case 50:  CAN_InitSturcture.CAN_Prescaler = 120;
-                 break;
-            case 20:  CAN_InitSturcture.CAN_Prescaler = 300;
-                 break;
-            case 10:  CAN_InitSturcture.CAN_Prescaler = 600;
-                 break;
-        }
+       HAL_CANInt(CANbitRate);
 
-        CAN_Init(CAN1, &CAN_InitSturcture);
+       HAL_CANSetFiters(0, ( 0x180 | vGetNodeId() ),( 0x200 | vGetNodeId() ),( 0x300 | vGetNodeId() ),( 0x400 | vGetNodeId() ), FILTER_FIFO_0);
+       HAL_CANSetFiters(1, ( 0x500 | vGetNodeId() ),( 0x600 | vGetNodeId() ),0, 0, FILTER_FIFO_1);
 
-        sFilterConfig.CAN_FilterMode  = CAN_FilterMode_IdList;
-        sFilterConfig.CAN_FilterScale = CAN_FilterScale_16bit;
-        sFilterConfig.CAN_FilterIdLow =   ( 0x180 | vGetNodeId() ) <<5;
-        sFilterConfig.CAN_FilterIdHigh =  ( 0x200 | vGetNodeId() ) <<5;
-        sFilterConfig.CAN_FilterMaskIdLow  = ( 0x300 | vGetNodeId() ) <<5;
-        sFilterConfig.CAN_FilterMaskIdHigh = ( 0x400 | vGetNodeId() ) <<5;
-        sFilterConfig.CAN_FilterFIFOAssignment = CAN_Filter_FIFO0;
-        sFilterConfig.CAN_FilterNumber = 0;
-        sFilterConfig.CAN_FilterActivation =ENABLE;
-        CAN_FilterInit(&sFilterConfig);
+       HAL_CANSetTXCallback(&CAN_SendMessage);
+       HAL_CANSetERRCallback(&vRestartNode);
+       HAL_CANSetRXCallback(&prv_read_can_received_msg);
 
-        sFilterConfig.CAN_FilterIdLow = ( 0x500 | vGetNodeId() ) <<5;
-        sFilterConfig.CAN_FilterIdHigh =  ( 0x600 | vGetNodeId() ) <<5;
-        sFilterConfig.CAN_FilterMaskIdLow  = 0;
-        sFilterConfig.CAN_FilterMaskIdHigh = 0;
-        sFilterConfig.CAN_FilterFIFOAssignment = CAN_Filter_FIFO1;
-        sFilterConfig.CAN_FilterNumber = 1;
-
-        CAN_FilterInit(&sFilterConfig);
-
-//Сбрасываем флаги прерываний, на случай если мы зашлию сюда по перегрузке
-       CAN_ClearITPendingBit(CAN1, CAN_IT_BOF);
-       CAN_ClearITPendingBit(CAN1, CAN_IT_TME );
-       CAN_ClearITPendingBit(CAN1, CAN_IT_FMP0);
-       CAN_ClearITPendingBit(CAN1, CAN_IT_FMP1);
-
-
-
-
-       CAN_ITConfig(CAN1, CAN_IT_TME | CAN_IT_BOF | CAN_IT_FMP0 | CAN_IT_FMP1 ,ENABLE);
-          printf("can inir\r\n");
     return ( CO_ERROR_NO );
 }
 
@@ -222,7 +170,8 @@ CO_ReturnError_t CO_CANmodule_init(
 /******************************************************************************/
 void CO_CANmodule_disable(CO_CANmodule_t *CANmodule) {
 	if (CANmodule != NULL && CANmodule->CANptr != NULL) {
-	         CAN_OperatingModeRequest(CANmodule->CANptr,CAN_OperatingMode_Initialization);
+	            HAL_CANToInitMode();
+
 	    }
 }
 
@@ -297,23 +246,16 @@ CO_CANtx_t *CO_CANtxBufferInit(
 
 
 
-
-static CanTxMsg pTXHeader =  {0,0,CAN_Id_Standard,0,0,{0}};
-
-
 static uint32_t prv_send_can_message(CO_CANmodule_t* CANmodule, CO_CANtx_t *buffer) {
 
     uint8_t error_code;
     /* Check if TX FIFO is ready to accept more messages */
+    CAN_TX_FRAME_TYPE txmsg;
+    txmsg.DLC = (uint32_t)buffer->DLC;
+    txmsg.ident = buffer->ident;
+    memcpy(txmsg.data,buffer->data,buffer->DLC);
+    error_code = HAL_CANSend(&txmsg);
 
-    pTXHeader.DLC                = (uint32_t)buffer->DLC;
-    pTXHeader.RTR                = (buffer->ident & FLAG_RTR) ? CAN_RTR_REMOTE : CAN_RTR_DATA;
-    pTXHeader.StdId              =  buffer->ident & CANID_MASK;
-    for (int i=0;i<buffer->DLC;i++)
-    {
-        pTXHeader.Data[i] = buffer->data[i];
-    }
-    error_code = CAN_Transmit(CAN1, &pTXHeader);
     return ((error_code != CAN_TxStatus_NoMailBox) ? 1 : 0U);
 }
 
@@ -476,6 +418,7 @@ CO_ReturnError_t CO_CANsend(CO_CANmodule_t *CANmodule, CO_CANtx_t *buffer){
  *
  */
 
+ /*
 void CAN_GetRxMessage(CAN_TypeDef  *hcan, uint32_t RxFifo,  CO_CANrxMsg_t * pCANData)
 {
 
@@ -494,10 +437,37 @@ void CAN_GetRxMessage(CAN_TypeDef  *hcan, uint32_t RxFifo,  CO_CANrxMsg_t * pCAN
     pCANData->data[7] = (uint8_t) CanRxStructure.Data[7];
     return;
 
+}*/
+
+
+void  prv_read_can_received_msg( uint32_t fifo) {
+
+   CO_CANrxMsg_t rcvMsg;
+   CAN_FRAME_TYPE rxMsg;
+   HAL_CANGetRXMessage(fifo, &rxMsg);
+
+   rcvMsg.ident =  rxMsg.ident;
+   rcvMsg.dlc   = rxMsg.DLC;
+   memcpy(rcvMsg.data,rxMsg.data, rxMsg.DLC);
+
+
+    CO_CANrx_t * buffer = CANModule_local->rxArray;
+    for (uint8_t index = CANModule_local->rxSize; index > 0U; --index, ++buffer)
+   {
+            if (((rcvMsg.ident ^ buffer->ident) & buffer->mask) == 0U)
+            {
+                if (buffer != NULL && buffer->CANrx_callback != NULL)
+                 {
+                         buffer->CANrx_callback(buffer->object, (void*) &rcvMsg);
+                 }
+                 break;
+             }
+        }
+
+   return;
 }
 
-
-
+/*
  void  prv_read_can_received_msg(CAN_TypeDef * can, uint32_t fifo) {
 
     static CO_CANrxMsg_t rcvMsg;
@@ -518,7 +488,7 @@ void CAN_GetRxMessage(CAN_TypeDef  *hcan, uint32_t RxFifo,  CO_CANrxMsg_t * pCAN
 
     return;
 }
-
+*/
 
 void HAL_CAN_ErrorCallback(CAN_TypeDef  *hcan)
 {

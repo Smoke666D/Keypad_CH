@@ -16,7 +16,7 @@
 
 #endif
 
-#if MCU == CH32
+#if MCU == CH32V2
 	#include "ch32v20x_spi.h"
 	#include "ch32v20x_dma.h"
 
@@ -24,5 +24,5 @@
 #endif
 
 void HAL_SPI_InitDMA(HAL_SPI_t spi );
-
+void HAL_SPI_SetTXCallback( void (* f)(void) );
 #endif /* HAL_HAL_SPI_H_ */
