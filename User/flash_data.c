@@ -11,14 +11,13 @@
 #include "CANopen.h"
 #include "CO_ODinterface.h"
 #include "OD.h"
+#include "hal_flash.h"
 
 
 
 static uint8_t FisrtStart = 1; // 0         1    2     3     4     5      6     7  8  9  10
 static uint8_t SettingsREG[REG_SIZE]={VALID_CODE, 0x02, 0x15, 0x01, 0x3F, 0x00, WHITE, 1 ,2, 2, 4, 3, 00, 44,00,55};
-
 static uint8_t *MEM_If_Read_FS(uint8_t *src, uint8_t *dest, uint32_t Len);
-static void MEM_If_Write_FS(uint8_t *src, uint8_t *dest, uint32_t Len);
 
 ;
 static void vFDWtiteReg(void);
@@ -31,11 +30,9 @@ void * cgetREGAdr(uint8_t adr)
 static void vFDWtiteReg(void)
 {
 	uint8_t * src = (uint8_t *) FLASH_DATA_ADR;
-
-	FLASH_Unlock();
-	FLASH_ErasePage(FLASH_DATA_ADR);
-	MEM_If_Write_FS(&SettingsREG[0], src, sizeof(SettingsREG));
-	FLASH_Lock();
+	HAL_FLASH_ErasePage(FLASH_DATA_ADR);
+	HAL_FLASH_WriteByWord(&SettingsREG[0], src, sizeof(SettingsREG));
+	HAL_FLASH_Lock();
 }
 
 void vFDInit( void )
@@ -45,13 +42,10 @@ void vFDInit( void )
 	if (FisrtStart)
 	{
 	   MEM_If_Read_FS(src, &buff, 1);
-	   printf("ValidCode %d\r\n",buff);
 	   if (buff!= VALID_CODE)
 	   {
-	       printf("NotValidCode\n");
 		   vFDWtiteReg();
 		   MEM_If_Read_FS(src, &buff, 1);
-		   printf("new ValidCode %d\r\n",buff);
 	   }
 		MEM_If_Read_FS(src, &SettingsREG[0],  sizeof(SettingsREG));
 		FisrtStart = 0;
@@ -159,48 +153,6 @@ uint8_t vGetNodeId( void )
 
 
 
-
-
-
-
-/**
-  * @brief  Memory write routine.
-  * @param  src: Pointer to the source buffer. Address to be written to.
-  * @param  dest: Pointer to the destination buffer.
-  * @param  Len: Number of data to be written (in bytes).
-  * @retval USBD_OK if operation is successful, MAL_FAIL else.
-  */
-void MEM_If_Write_FS(uint8_t *src, uint8_t *dest, uint32_t Len)
-{
-  /* USER CODE BEGIN 3 */
-  uint32_t           i      = 0U; 
-
-  for ( i=0U; i<Len; i+=4U )
-  {
-	if ( ( uint32_t )( dest + i ) > FLASH_SIZE )
-	{
-      if (  FLASH_ProgramWord( ( uint32_t )( dest + i ), *( uint32_t* )( src + i ) ) ==  FLASH_COMPLETE)
-      {
-        if ( *( uint32_t* )( src + i ) != *( uint32_t* )( dest + i ) )
-        {
-        	
-          break;
-        }
-        else
-        {
-        	
-        }
-      }
-      else
-      {
-    	  
-        break;
-      }
-	}
-  }
-  return;
-  /* USER CODE END 3 */
-}
 
 /**
   * @brief  Memory read routine.

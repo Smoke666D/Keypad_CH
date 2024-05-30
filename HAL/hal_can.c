@@ -30,7 +30,7 @@ void HAL_CANSetERRCallback(void (* f) ( void ))
 	CAN.errorcallback = f;
 }
 
-void HAL_CANInt(  uint16_t   CANbitRate)
+void HAL_CANIntIT(  uint16_t   CANbitRate, uint8_t prior, uint8_t subprior)
 {
 #if MCU == APM32
 	CAN_Config_T       CAN_ConfigStructure;
@@ -71,9 +71,9 @@ void HAL_CANInt(  uint16_t   CANbitRate)
       CAN_Config(CAN1, &CAN_ConfigStructure);
 
      CAN_EnableInterrupt(CAN1, CAN_INT_TXME | CAN_INT_BOF | CAN_INT_F0MP | CAN_INT_F1MP);
-     NVIC_EnableIRQRequest(CAN1_RX0_IRQn, 5, 0);
-     NVIC_EnableIRQRequest(CAN1_RX1_IRQn, 5, 0);
-     NVIC_EnableIRQRequest(CAN1_SCE_IRQn, 5, 0);
+     NVIC_EnableIRQRequest(CAN1_RX0_IRQn, prior, subprior);
+     NVIC_EnableIRQRequest(CAN1_RX1_IRQn, prior, subprior);
+     NVIC_EnableIRQRequest(CAN1_SCE_IRQn, prior, subprior);
 #endif
 #if MCU == CH32V2
      NVIC_InitTypeDef      NVIC_InitStructure = {0};
@@ -118,7 +118,8 @@ void HAL_CANInt(  uint16_t   CANbitRate)
      CAN_ITConfig(CAN1, CAN_IT_TME | CAN_IT_BOF | CAN_IT_FMP0 | CAN_IT_FMP1 ,ENABLE);
      NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
      NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+     NVIC_InitStructure.NVIC_IRQChannelSubPriority = subprior;
+     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = prior;
      NVIC_Init(&NVIC_InitStructure);
 
      NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX1_IRQn;

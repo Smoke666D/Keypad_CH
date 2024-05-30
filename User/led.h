@@ -22,9 +22,9 @@
 
 #define BUTTON_COUNT 8
 
-#define  MAX_BRIGTH 0x3F
+#define  MAX_BRIGTH  0x3F
 #define  MAX_DATA 0xFF
-#define  MAX_BRIGTH_COUNTER    90//MAX_BRIGTH *2
+#define  MAX_BRIGTH_COUNTER   MAX_BRIGTH//90// 0x3F// *2
 #define  OFF 0x00
 
 #define LATCH_DEALY 	100U

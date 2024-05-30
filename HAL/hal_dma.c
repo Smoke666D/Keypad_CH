@@ -16,10 +16,10 @@
 	#include "ch32v20x_adc.h"
 	#include "ch32v20x_rcc.h"
 
-void     DMA1_Channel1_IRQHandler(void)   __attribute__((interrupt("WCH-Interrupt-fast")));
-void     DMA1_Channel4_IRQHandler(void)   __attribute__((interrupt("WCH-Interrupt-fast")));
-void     DMA1_Channel5_IRQHandler(void)   __attribute__((interrupt("WCH-Interrupt-fast")));
-void     DMA1_Channel7_IRQHandler(void)   __attribute__((interrupt("WCH-Interrupt-fast")));
+void     DMA1_Channel1_IRQHandler(void)   __attribute__((interrupt()));
+void     DMA1_Channel4_IRQHandler(void)   __attribute__((interrupt()));
+void     DMA1_Channel5_IRQHandler(void)   __attribute__((interrupt()));
+void     DMA1_Channel7_IRQHandler(void)   __attribute__((interrupt()));
 #endif
 
 DMA_CFG_t DMA_CALLback[7]   __SECTION(RAM_SECTION_CCMRAM);
@@ -45,7 +45,7 @@ void HAL_DMA_SetCounter( DMA_Stram_t stream, uint32_t counter )
 
 }
 
-void HAL_DMAInitIT( DMA_Stram_t stream , DMA_Derection_t direction, DMA_Size_t dma_size, uint32_t paddr, uint32_t memadr, DMA_CHANNEL_t channel, void (*f)(void))
+void HAL_DMAInitIT( DMA_Stram_t stream , DMA_Derection_t direction, DMA_Size_t dma_size, uint32_t paddr, uint32_t memadr, DMA_CHANNEL_t channel, uint8_t prior, uint8_t subprior, void (*f)(void))
 {
 #if MCU== APM32
 	   DMA_Config_T dmaConfig;
@@ -174,7 +174,7 @@ void HAL_DMAInitIT( DMA_Stram_t stream , DMA_Derection_t direction, DMA_Size_t d
 	   DMA_Config(stream, &dmaConfig);
 	   DMA_Enable(stream);
 	   DMA_ClearIntFlag(stream, flag);
-	   NVIC_EnableIRQRequest( irq, 6, 0 );
+	   NVIC_EnableIRQRequest( irq, prior , subprior);
 #endif
 #if MCU== CH32V2
 	   DMA_InitTypeDef  dmaConfig;
@@ -258,7 +258,7 @@ void HAL_DMAInitIT( DMA_Stram_t stream , DMA_Derection_t direction, DMA_Size_t d
 	   dmaConfig.DMA_MemoryInc		    = DMA_MemoryInc_Enable;
 	   dmaConfig.DMA_PeripheralInc 	    = DMA_PeripheralInc_Disable;
 	   dmaConfig.DMA_Mode		   		= DMA_Mode_Normal;
-	   dmaConfig.DMA_Priority		    = DMA_Priority_Low;
+	   dmaConfig.DMA_Priority		    = DMA_Priority_Medium;
 	   dmaConfig.DMA_PeripheralBaseAddr = paddr;
 	   dmaConfig.DMA_MemoryBaseAddr    = memadr;
 	   dmaConfig.DMA_M2M 		       = DMA_M2M_Disable;
@@ -266,8 +266,8 @@ void HAL_DMAInitIT( DMA_Stram_t stream , DMA_Derection_t direction, DMA_Size_t d
 	   DMA_ITConfig(stream ,DMA_IT_TC,ENABLE);
 	   DMA_ClearITPendingBit( flag);
 	   NVIC_InitStructure.NVIC_IRQChannel =  irq;
-	   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-	   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = prior;
+	   NVIC_InitStructure.NVIC_IRQChannelSubPriority = subprior;
 	   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	   NVIC_Init(&NVIC_InitStructure);
 #endif
@@ -365,10 +365,9 @@ void DMA1_Channel1_IRQHandler(void)
 void  DMA1_Channel5_IRQHandler(void)
 {
     if (DMA_GetITStatus(DMA1_IT_TC5)==SET)
-    {
-
-          DMA_ClearITPendingBit(DMA1_IT_GL5);
-         DMA_CALLback[4].CallBack();
+     {
+    	   DMA_CALLback[4].CallBack();
+           DMA_ClearITPendingBit(DMA1_IT_GL5);
     }
 }
 void  DMA1_Channel4_IRQHandler(void)

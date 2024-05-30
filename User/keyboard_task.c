@@ -54,7 +54,7 @@ void vInitKeybord()
     KeyboardInit.REPEAT_TIME       = vFDGetRegState( REPEAT_TIME_ADDRESS );
     KeyboardInit.KEYDOWN_HOLD_TIME = vFDGetRegState( KEYDOWN_HOLD_ADDRESS) ;
     KeyboardInit.KEYDOWN_DELAY     = vFDGetRegState( KEYDOWN_DELAY_ADRRES);
-    KeyboardInit.KEYBOARD_PERIOD   = vFDGetRegState(KEYBOARD_PERIOD_ADRRES)*10U;
+    KeyboardInit.KEYBOARD_PERIOD   = 20;
     KeyboardInit.getPortCallback = &fPortState;
     eKeyboardInit(&KeyboardInit);
 }

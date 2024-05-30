@@ -9,6 +9,8 @@
 #define HAL_BOARD_DEFINE_H_
 
 #define MCU CH32V2
-//#define WDT
+#define WDT
+
+
 
 #endif /* HAL_BOARD_DEFINE_H_ */

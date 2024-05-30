@@ -37,7 +37,7 @@
 /* Mutex for atomic access */
 static SemaphoreHandle_t co_mutex = NULL;
 
-void prv_read_can_received_msg( uint32_t fifo);
+void prv_read_can_received_msg( HAL_CAN_RX_FIFO_NUMBER_t fifo);
 
 /* Semaphore for main app thread synchronization */
 SemaphoreHandle_t co_drv_app_thread_sync_semaphore = NULL;
@@ -154,7 +154,7 @@ CO_ReturnError_t CO_CANmodule_init(
     }
 
 
-       HAL_CANInt(CANbitRate);
+       HAL_CANIntIT(CANbitRate,1,3);
 
        HAL_CANSetFiters(0, ( 0x180 | vGetNodeId() ),( 0x200 | vGetNodeId() ),( 0x300 | vGetNodeId() ),( 0x400 | vGetNodeId() ), FILTER_FIFO_0);
        HAL_CANSetFiters(1, ( 0x500 | vGetNodeId() ),( 0x600 | vGetNodeId() ),0, 0, FILTER_FIFO_1);
@@ -440,12 +440,11 @@ void CAN_GetRxMessage(CAN_TypeDef  *hcan, uint32_t RxFifo,  CO_CANrxMsg_t * pCAN
 }*/
 
 
-void  prv_read_can_received_msg( uint32_t fifo) {
+void  prv_read_can_received_msg( HAL_CAN_RX_FIFO_NUMBER_t fifo) {
 
    CO_CANrxMsg_t rcvMsg;
    CAN_FRAME_TYPE rxMsg;
    HAL_CANGetRXMessage(fifo, &rxMsg);
-
    rcvMsg.ident =  rxMsg.ident;
    rcvMsg.dlc   = rxMsg.DLC;
    memcpy(rcvMsg.data,rxMsg.data, rxMsg.DLC);
@@ -467,28 +466,6 @@ void  prv_read_can_received_msg( uint32_t fifo) {
    return;
 }
 
-/*
- void  prv_read_can_received_msg(CAN_TypeDef * can, uint32_t fifo) {
-
-    static CO_CANrxMsg_t rcvMsg;
-    CAN_GetRxMessage(can, fifo,  &rcvMsg);
-
-    	CO_CANrx_t * buffer = CANModule_local->rxArray;
-    	    for (uint8_t index = CANModule_local->rxSize; index > 0U; --index, ++buffer)
-    	    {
-    	         if (((rcvMsg.ident ^ buffer->ident) & buffer->mask) == 0U)
-    	         {
-    	              if (buffer != NULL && buffer->CANrx_callback != NULL)
-    	              {
-    	                  buffer->CANrx_callback(buffer->object, (void*) &rcvMsg);
-    	              }
-    	              break;
-    	          }
-    	    }
-
-    return;
-}
-*/
 
 void HAL_CAN_ErrorCallback(CAN_TypeDef  *hcan)
 {

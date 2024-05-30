@@ -4,6 +4,7 @@
 #include "hal_gpio.h"
 #include "hal_timers.h"
 #include "hal_spi.h"
+#include "hal_wdt.h"
 
 
 /*
@@ -26,13 +27,10 @@ void vInit_DeviceConfig( void )
     HAL_InitGpioAF(SPI_Port,SPI_MOSI_Pin |  SPI_SCK_Pin ,0,GPIO_Mode_AF_PP);
     HAL_InitGpioAF(TIM2_CH1_2_Port,TIM2_CH1_Pin |  TIM2_CH2_Pin  ,GPIO_PartialRemap2_TIM2,GPIO_Mode_AF_PP);
     HAL_InitGpioAF(TIM2_CH3_Port  ,TIM2_CH3_Pin  ,GPIO_PartialRemap2_TIM2,GPIO_Mode_AF_PP);
-
+    HAL_WDTInit();
     HAL_TIMER_InitIt( TIMER3, 10000000, 1000, &TimersCallback );
     HAL_TIMER_PWMTimersInit(TIMER2, 48000000, 1000, TIM_CHANNEL_1 | TIM_CHANNEL_2 | TIM_CHANNEL_3 );
-    HAL_SPI_InitDMA(SPI2);
-   // HAL_SPI_InitIT(SPI2);
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-
+    HAL_SPI_InitDMA(SPI2, SPI_8bit ,SPI_SOFT_NSS);
 	return;
 }
 

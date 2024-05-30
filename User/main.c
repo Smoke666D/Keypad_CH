@@ -32,7 +32,7 @@
  */
 int main(void)
 {
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
     SystemCoreClockUpdate();
     Delay_Init();
     USART_Printf_Init(115200);
@@ -46,7 +46,6 @@ int main(void)
     vCanOpenInit(CAN1);
     vTaskStartScheduler();
     while(1);
-
 }
 
 

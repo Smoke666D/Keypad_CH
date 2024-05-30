@@ -88,7 +88,7 @@ typedef struct
 void HAL_CANSetTXCallback(void (* f) ( void ));
 void HAL_CANSetRXCallback(void (* f) ( HAL_CAN_RX_FIFO_NUMBER_t));
 void HAL_CANSetERRCallback(void (* f) ( void ));
-void HAL_CANInt(  uint16_t   CANbitRate);
+void HAL_CANIntIT(  uint16_t   CANbitRate, uint8_t prior, uint8_t subprior);
 uint8_t HAL_CANToInitMode();
 uint8_t HAL_CANToOperatingMode();
 uint8_t HAL_CANSend(CAN_TX_FRAME_TYPE *buffer);

@@ -11,6 +11,7 @@
 #include "hal_gpio.h"
 #include "hal_timers.h"
 #include "hal_dma.h"
+#include "hal_spi.h"
 #include "ch32v20x_spi.h"
 #include "string.h"
 
@@ -25,52 +26,16 @@ static uint16_t led_brigth_counter 		= 0;
 static uint16_t led_blink_counter 		= 0;
 static uint8_t BlinkON					= 1;
 static uint8_t data[SPI_PACKET_SIZE];
-static uint8_t tx_counter;
 
-void SendData()
-{
-    tx_counter = 0;
-    SPI_I2S_ITConfig( SPI2, SPI_I2S_IT_TXE , ENABLE );
-}
-
-void TransmirData()
-{
-    if (tx_counter++ >= 3)
-    {
-        SPI_I2S_ITConfig( SPI2, SPI_I2S_IT_TXE , DISABLE );
-        SPI_I2S_ClearFlag(SPI2,SPI_I2S_FLAG_OVR);
-        HAL_SetBit(CS_Port, CSPin);
-        HAL_TiemrEneblae(TIMER3);
-    }
-    else
-    {
-        SPI_I2S_SendData( SPI2, data[tx_counter-1] );
-    }
-
-
-
-}
 
 void LC()
 {
-    HAL_DMA_Disable(DMA1_CH5);
-  SPI_I2S_ClearFlag(SPI2,SPI_I2S_FLAG_OVR);
-   while (SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_BSY) == SET);
+   HAL_DMA_Disable(DMA1_CH5);
+   HAL_SPI_RXOveleyClear(SPI2 );
+   while (HAL_SPI_GetBusy(SPI2) == HAL_SET);
    HAL_SetBit(CS_Port, CSPin);
-  //  HAL_TiemrEneblae(TIMER3);
 }
 
-static void vSPI_Transmit( )
-{
-  DMA_SetCurrDataCounter(DMA1_Channel5,3);
-  HAL_DMA_Enable(DMA1_CH5);
-//  while (SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_BSY) == SET);
-// HAL_DMA_Disable(DMA1_CH5);
- // DMA_ClearFlag(DMA1_FLAG_GL5);
-  //SPI_I2S_ClearFlag(SPI2,SPI_I2S_FLAG_OVR);
-  //HAL_SPI_SetTXCallback(&TransmirData);
-  return;
-}
 /*
  *
  */
@@ -94,18 +59,15 @@ void vLedInit()
     return;
 }
 
-
-
 /*
  *
  */
 void vLedDriverStart(void)
 {
-   HAL_DMAInitIT(DMA1_Channel5,MTOP,3,(u32)&SPI2->DATAR, (u32)data,0,&LC);
-   // HAL_SPI_SetTXCallback(& TransmirData);
-	HAL_TiemrEneblae(TIMER3);
-	HAL_TiemrEneblae(TIMER2);
-	return;
+   HAL_DMAInitIT(DMA1_Channel5,MTOP,3,(u32)&SPI2->DATAR, (u32)data,0,1,4,&LC);
+   HAL_TiemrEneblae(TIMER3);
+   HAL_TiemrEneblae(TIMER2);
+   return;
 }
 /*
  * Функция включения светодиодоы.
@@ -240,33 +202,29 @@ void vLedProcess( void )
     	BlinkON = 1U;
     }
 
-    memset(data,0,3);
+    memset(data,0, SPI_PACKET_SIZE );
     temp_led = ~(LED_ON[0]  | LED_ON[1] | LED_ON[2] );
+
 	if (led_brigth_counter < backligch_brigth)
 	{
 		 data[2]=brigth_color[0] & temp_led;
 	 	 data[1]=brigth_color[1] & temp_led;
 	 	 data[0]=brigth_color[2] & temp_led;
  	}
-	if (led_brigth_counter <= led_brigth)
+	if (led_brigth_counter < led_brigth)
 	{
 		data[2]|=LED_ON[0];
 	 	data[1]|=LED_ON[1];
 	 	data[0]|=LED_ON[2];
     }
-
-    vSPI_Transmit();
-
-	//SendData();
+	HAL_DMA_SetCounter(DMA1_CH5, SPI_PACKET_SIZE );
+    HAL_DMA_Enable(DMA1_CH5);
     return;
 }
 
 
 void TimersCallback()
 {
-    //HAL_TiemrDisable(TIMER3);
-     HAL_ResetBit(CS_Port, CSPin);
-     vLedProcess();
-   //  HAL_SetBit(CS_Port, CSPin);
-
+    HAL_ResetBit(CS_Port, CSPin);
+    vLedProcess();
 }

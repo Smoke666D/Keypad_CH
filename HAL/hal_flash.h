@@ -11,7 +11,7 @@
 #include "hal_config.h"
 #include "main.h"
 
-#if MCU == CH32
+#if MCU == CH32V2
  #include "ch32v20x_flash.h"
 #endif
 
