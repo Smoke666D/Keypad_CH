@@ -47,7 +47,6 @@ encoding//HAL/hal_gpio.c=UTF-8
 encoding//HAL/hal_gpio.h=GBK
 encoding//HAL/hal_spi.c=GBK
 encoding//HAL/hal_timers.c=UTF-8
-encoding//HAL/hal_timers.h=GBK
 encoding//HAL/hal_wdt.c=GBK
 encoding//HWLIB/hw_lib_keyboard.c=UTF-8
 encoding//HWLIB/hw_lib_keyboard.h=UTF-8

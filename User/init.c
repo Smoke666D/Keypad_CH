@@ -28,7 +28,7 @@ void vInit_DeviceConfig( void )
     HAL_InitGpioAF(TIM2_CH1_2_Port,TIM2_CH1_Pin |  TIM2_CH2_Pin  ,GPIO_PartialRemap2_TIM2,GPIO_Mode_AF_PP);
     HAL_InitGpioAF(TIM2_CH3_Port  ,TIM2_CH3_Pin  ,GPIO_PartialRemap2_TIM2,GPIO_Mode_AF_PP);
     HAL_WDTInit();
-    HAL_TIMER_InitIt( TIMER3, 10000000, 1000, &TimersCallback );
+    HAL_TIMER_InitIt( TIMER3, 10000000, 1000, &TimersCallback,1,3 );
     HAL_TIMER_PWMTimersInit(TIMER2, 48000000, 1000, TIM_CHANNEL_1 | TIM_CHANNEL_2 | TIM_CHANNEL_3 );
     HAL_SPI_InitDMA(SPI2, SPI_8bit ,SPI_SOFT_NSS);
 	return;

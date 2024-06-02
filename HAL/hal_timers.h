@@ -73,7 +73,7 @@ typedef struct
 	void (* callback_function)();
 } TimerConfif_t;
 
-void HAL_TIMER_InitIt( TimerName_t TimerName, uint32_t freq_in_hz, uint32_t Period, void (*f)() );
+void HAL_TIMER_InitIt( TimerName_t TimerName, uint32_t freq_in_hz, uint32_t Period, void (*f)() ,uint8_t prior, uint8_t subprior );
 u32 HAL_GetTimerCounterRegAdres(TimerName_t TimerName , uint8_t ch );
 void vHW_L_LIB_FreeRunEneblae( TimerName_t TimerName );
 void vHW_L_LIB_FreeRunInit( TimerName_t TimerName, uint32_t freq_in_hz  );
