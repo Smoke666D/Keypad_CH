@@ -17,33 +17,49 @@
 	#include "ch32v20x_rcc.h"
 
 void     DMA1_Channel1_IRQHandler(void)   __attribute__((interrupt()));
+void     DMA1_Channel3_IRQHandler(void)   __attribute__((interrupt()));
 void     DMA1_Channel4_IRQHandler(void)   __attribute__((interrupt()));
 void     DMA1_Channel5_IRQHandler(void)   __attribute__((interrupt()));
 void     DMA1_Channel7_IRQHandler(void)   __attribute__((interrupt()));
 #endif
 
 DMA_CFG_t DMA_CALLback[7]   __SECTION(RAM_SECTION_CCMRAM);
-
+/*
+ * Включить выбрвнный канал DMA
+ */
 void HAL_DMA_Enable(DMA_Stram_t stream  )
 {
 #if MCU == CH32V2
-	DMA_Cmd(stream , ENABLE);
+    stream->CFGR |= DMA_CFGR1_EN;
 #endif
 }
+/*
+ * Выключить выбранный канал DMA
+ */
+
 void HAL_DMA_Disable(DMA_Stram_t stream  )
 {
 #if MCU == CH32V2
-	DMA_Cmd(stream , DISABLE);
+    stream->CFGR &= (uint16_t)(~DMA_CFGR1_EN);
 #endif
 }
 
 void HAL_DMA_SetCounter( DMA_Stram_t stream, uint32_t counter )
 {
 	#if MCU == CH32V2
-	 DMA_SetCurrDataCounter( stream , counter);
+     stream->CNTR = counter;
 	#endif
 
 }
+
+void HAL_DMA_SetCouterAndEnable(DMA_Stram_t stream, uint32_t counter )
+{
+#if MCU == CH32V2
+     stream->CNTR = counter;
+     stream->CFGR |= DMA_CFGR1_EN;
+    #endif
+}
+
 
 void HAL_DMAInitIT( DMA_Stram_t stream , DMA_Derection_t direction, DMA_Size_t dma_size, uint32_t paddr, uint32_t memadr, DMA_CHANNEL_t channel, uint8_t prior, uint8_t subprior, void (*f)(void))
 {
@@ -260,8 +276,8 @@ void HAL_DMAInitIT( DMA_Stram_t stream , DMA_Derection_t direction, DMA_Size_t d
 	   dmaConfig.DMA_Mode		   		= DMA_Mode_Normal;
 	   dmaConfig.DMA_Priority		    = DMA_Priority_Medium;
 	   dmaConfig.DMA_PeripheralBaseAddr = paddr;
-	   dmaConfig.DMA_MemoryBaseAddr    = memadr;
-	   dmaConfig.DMA_M2M 		       = DMA_M2M_Disable;
+	   dmaConfig.DMA_MemoryBaseAddr     = memadr;
+	   dmaConfig.DMA_M2M 		        = DMA_M2M_Disable;
 	   DMA_Init(stream , &dmaConfig);
 	   DMA_ITConfig(stream ,DMA_IT_TC,ENABLE);
 	   DMA_ClearITPendingBit( flag);
@@ -307,12 +323,13 @@ void HAL_ADC_StartDMA( DMA_Stram_t chanel, uint16_t * data, uint16_t size)
 #endif
 #if MCU == CH32V2
 	DMA_ClearITPendingBit( DMA1_IT_GL1 );
-	DMA_SetCurrDataCounter(chanel, size);
-	chanel->MADDR = data;
+	chanel->CNTR  = size;
+	chanel->MADDR = (u32)data;
 	ADC_DMACmd(ADC1, ENABLE);
 	ADC_ClearITPendingBit(ADC1,ADC_IT_EOC);
 	DMA_ITConfig(chanel,DMA_IT_TC, ENABLE);
-	DMA_Cmd(chanel, ENABLE);
+	chanel->CFGR |= DMA_CFGR1_EN;
+	ADC_Cmd(ADC1, ENABLE);
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 #endif
 }
@@ -356,26 +373,38 @@ void DMA1_Channel1_IRQHandler(void)
     if(DMA_GetITStatus(DMA1_IT_TC1)==SET )
        {
     	   DMA_CALLback[0].CallBack();
-           DMA_ClearITPendingBit(DMA1_IT_GL1); //Сбрасываем флаг
+
+          DMA_ClearITPendingBit(DMA1_IT_GL1); //Сбрасываем флаг
        }
        return;
+
+}
+
+void DMA1_Channel3_IRQHandler(void)
+{
+    if(DMA_GetITStatus(DMA1_IT_TC3)==SET )
+    {
+    	DMA_CALLback[2].CallBack();
+        DMA_ClearITPendingBit(DMA1_IT_GL3); //Сбрасываем флаг
+    }
+    return;
 
 }
 
 void  DMA1_Channel5_IRQHandler(void)
 {
     if (DMA_GetITStatus(DMA1_IT_TC5)==SET)
-     {
-    	   DMA_CALLback[4].CallBack();
-           DMA_ClearITPendingBit(DMA1_IT_GL5);
+    {
+    	DMA_CALLback[4].CallBack();
+        DMA_ClearITPendingBit(DMA1_IT_GL5);
     }
 }
 void  DMA1_Channel4_IRQHandler(void)
 {
     if (DMA_GetITStatus(DMA1_IT_TC4)==SET)
-     {
-    	   DMA_CALLback[3].CallBack();
-           DMA_ClearITPendingBit(DMA1_IT_GL4);
+    {
+    	 DMA_CALLback[3].CallBack();
+         DMA_ClearITPendingBit(DMA1_IT_GL4);
     }
 }
 
@@ -383,11 +412,10 @@ void DMA1_Channel7_IRQHandler(void)
 {
     if (DMA_GetITStatus(DMA1_IT_TC7)==SET)
      {
-    	   DMA_CALLback[6].CallBack();
-           DMA_ClearITPendingBit(DMA1_IT_GL7);
+    	 DMA_CALLback[6].CallBack();
+         DMA_ClearITPendingBit(DMA1_IT_GL7);
     }
 }
-
 
 
 #endif

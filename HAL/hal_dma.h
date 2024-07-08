@@ -1,7 +1,7 @@
 /*
  * hal_dma.h
  *
- *  Created on: 25 апр. 2024 г.
+ *  Created on: 25 邪锌褉. 2024 谐.
  *      Author: i.dymov
  */
 
@@ -72,7 +72,7 @@ typedef struct
 
 } DMA_CFG_t;
 
-
+void HAL_DMA_SetCouterAndEnable(DMA_Stram_t stream, uint32_t counter );
 void HAL_DMA_Enable(DMA_Stram_t stream  );
 void HAL_DMA_Disable(DMA_Stram_t stream  );
 void HAL_DMA_SetCounter( DMA_Stram_t stream, uint32_t counter );

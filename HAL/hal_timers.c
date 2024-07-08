@@ -18,6 +18,7 @@ static TMR_T * timers[TIMERS_COUNT] = { TMR1,TMR2,TMR3,TMR4,TMR5,TMR6,TMR7,TMR8,
 #endif
 #if MCU == CH32V2
 static TIM_TypeDef * timers[TIMERS_COUNT] = { TIM1,TIM2,TIM3,TIM4,TIM5};
+void TIM1_UP_IRQHandler(void) __attribute__((interrupt()));
 void TIM2_IRQHandler(void) __attribute__((interrupt()));
 void TIM3_IRQHandler(void) __attribute__((interrupt()));
 void TIM4_IRQHandler(void) __attribute__((interrupt()));
@@ -67,7 +68,9 @@ void HAL_TIMER_InitIt( TimerName_t TimerName, uint32_t freq_in_hz, uint32_t Peri
 	uint8_t irq;
 	switch (TimerName )
 	{
-
+		case TIMER1:
+			    irq = TIM1_UP_IRQn;
+			    break;
 		case TIMER2:
 			irq = TIM2_IRQn;
 			break;
@@ -89,7 +92,17 @@ void HAL_TIMER_InitIt( TimerName_t TimerName, uint32_t freq_in_hz, uint32_t Peri
 
 #if MCU == CH32V2
 
+void  TIM1_UP_IRQHandler(void)
+{
 
+
+    if   (SET == TIM_GetITStatus(TIM1, TIM_IT_Update) )
+    {
+        config[0].callback_function();
+        TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+
+    }
+}
 void  TIM4_IRQHandler(void)
 {
 
@@ -618,4 +631,6 @@ static uint32_t getTimerFreq( TimerName_t TimerName )
 		}
 	return 0;
 }
+
+
 

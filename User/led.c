@@ -31,8 +31,8 @@ static uint8_t data[SPI_PACKET_SIZE];
 void LC()
 {
    HAL_DMA_Disable(DMA1_CH5);
-   HAL_SPI_RXOveleyClear(SPI2 );
-   while (HAL_SPI_GetBusy(SPI2) == HAL_SET);
+   HAL_SPI_RXOveleyClear(HAL_SPI2 );
+   while (HAL_SPI_GetBusy(HAL_SPI2) == HAL_SET);
    HAL_SetBit(CS_Port, CSPin);
 }
 
@@ -217,8 +217,7 @@ void vLedProcess( void )
 	 	data[1]|=LED_ON[1];
 	 	data[0]|=LED_ON[2];
     }
-	HAL_DMA_SetCounter(DMA1_CH5, SPI_PACKET_SIZE );
-    HAL_DMA_Enable(DMA1_CH5);
+	HAL_DMA_SetCouterAndEnable(DMA1_CH5, SPI_PACKET_SIZE );
     return;
 }
 
