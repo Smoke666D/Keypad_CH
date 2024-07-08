@@ -98,4 +98,9 @@ typedef enum
 #define HAL_SET   1
 #define HAL_RESET 0
 
+#define TIM1_UP_ENABLE 0
+#define TIM2_UP_ENABLE 0
+#define TIM3_UP_ENABLE 1
+#define TIM4_UP_ENABLE 0
+
 #endif /* HAL_HAL_CONFIG_H_ */

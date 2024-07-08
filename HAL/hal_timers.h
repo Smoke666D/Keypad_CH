@@ -1,7 +1,7 @@
 /*
  * hal_timers.h
  *
- *  Created on: 9 邪锌褉. 2024 谐.
+ *  Created on: 9 閭攲瑜�. 2024 璋�.
  *      Author: i.dymov
  */
 
@@ -35,7 +35,6 @@
 typedef enum {
 	FREE_RUN_TIMER,
 	PWM_TIMER,
-
 } TimerType_t;
 
 typedef enum {
@@ -62,7 +61,7 @@ typedef enum {
 #endif
 #if MCU == CH32V2
 #define TimerRef_t TIM_TypeDef *
-#define TIMERS_COUNT  5
+#define TIMERS_COUNT  4
 #endif
 
 typedef struct
@@ -94,3 +93,5 @@ void HW_TIMER_BaseTimerInit(TimerName_t TimerName  );
 void HAL_TimeInitCaptureIT( TimerName_t TimerName , uint32_t freq_in_hz, uint32_t Period, uint8_t channel,uint8_t prior, uint8_t subprior, void (*f)( u8 ,u16) );
 void HAL_TimeInitCaptureDMA( TimerName_t TimerName , uint32_t freq_in_hz, uint32_t Period, uint8_t channel );
 #endif /* HAL_HAL_TIMERS_H_ */
+
+
