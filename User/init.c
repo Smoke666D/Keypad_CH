@@ -12,7 +12,6 @@
 */
 void vInit_DeviceConfig( void )
 {	
-    HAL_InitGpioLib();
     HAL_SetBit(CS_Port,CSPin);
     HAL_InitGpioAIN(PORT_A,GPIO_3 | GPIO_4 | GPIO_6 | GPIO_7 | GPIO_8 | GPIO_9 | GPIO_10 | GPIO_11 | GPIO_12 | GPIO_15 );
     HAL_InitGpioAIN(PORT_B,GPIO_0 | GPIO_11 | GPIO_14);
@@ -22,7 +21,6 @@ void vInit_DeviceConfig( void )
     HAL_InitGpioAF(CAN_PORT,CAN_TX_Pin,GPIO_Remap1_CAN1,GPIO_Mode_AF_PP);
     HAL_InitGpioAF(CAN_PORT,CAN_RX_Pin,GPIO_Remap1_CAN1,GPIO_Mode_IPU);
     HAL_InitGpioOut( CS_Port, CSPin);
-
     HAL_InitGpioAIN(SPI_Port, SPI_MISO_Pin) ;
     HAL_InitGpioAF(SPI_Port,SPI_MOSI_Pin |  SPI_SCK_Pin ,0,GPIO_Mode_AF_PP);
     HAL_InitGpioAF(TIM2_CH1_2_Port,TIM2_CH1_Pin |  TIM2_CH2_Pin  ,GPIO_PartialRemap2_TIM2,GPIO_Mode_AF_PP);
