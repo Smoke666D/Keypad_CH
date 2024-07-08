@@ -64,7 +64,7 @@ void vLedInit()
  */
 void vLedDriverStart(void)
 {
-   HAL_DMAInitIT(DMA1_CH5,MTOP,3,(u32)&SPI2->DATAR, (u32)data,0,1,4,&LC);
+   HAL_DMAInitIT(DMA1_CH5,MTOP,DMA_BYTE,(u32)&SPI2->DATAR, (u32)data,0,1,4,&LC);
    HAL_TiemrEneblae(TIMER3);
    HAL_TiemrEneblae(TIMER2);
    return;
@@ -217,6 +217,7 @@ void vLedProcess( void )
 	 	data[1]|=LED_ON[1];
 	 	data[0]|=LED_ON[2];
     }
+	HAL_ResetBit(CS_Port, CSPin);
 	HAL_DMA_SetCouterAndEnable(DMA1_CH5, SPI_PACKET_SIZE );
     return;
 }
@@ -224,6 +225,6 @@ void vLedProcess( void )
 
 void TimersCallback()
 {
-    HAL_ResetBit(CS_Port, CSPin);
+
     vLedProcess();
 }
