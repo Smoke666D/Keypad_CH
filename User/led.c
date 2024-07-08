@@ -64,7 +64,7 @@ void vLedInit()
  */
 void vLedDriverStart(void)
 {
-   HAL_DMAInitIT(DMA1_Channel5,MTOP,3,(u32)&SPI2->DATAR, (u32)data,0,1,4,&LC);
+   HAL_DMAInitIT(DMA1_CH5,MTOP,3,(u32)&SPI2->DATAR, (u32)data,0,1,4,&LC);
    HAL_TiemrEneblae(TIMER3);
    HAL_TiemrEneblae(TIMER2);
    return;

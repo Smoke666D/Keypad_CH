@@ -94,6 +94,7 @@ typedef enum
 #endif
 } PinName_t;
 
+#define DEFAULT_C
 
 #define HAL_SET   1
 #define HAL_RESET 0

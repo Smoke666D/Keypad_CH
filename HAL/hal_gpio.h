@@ -1,7 +1,7 @@
 /*
  * hal_gpio.h
  *
- *  Created on: 9 邪锌褉. 2024 谐.
+ *  Created on: 9 閭攲瑜�. 2024 璋�.
  *      Author: i.dymov
  */
 
@@ -79,3 +79,4 @@ BitState_t HAL_GetBit( PortName_t  port, uint16_t pin);
 BitState_t xHAL_GetOutBit( PortName_t  port, uint16_t pin);
 
 #endif /* HAL_HAL_GPIO_H_ */
+
