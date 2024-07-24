@@ -1,7 +1,7 @@
 /*
  * hal_gpio.h
  *
- *  Created on: 9 閭攲瑜�. 2024 璋�.
+ *  Created on: 9 апр. 2024 г.
  *      Author: i.dymov
  */
 
@@ -67,6 +67,7 @@ typedef enum
 #endif
 } GPIO_MODE_t;
 
+void HAL_InitGPO();
 
 void HAL_InitGpioIn(PortName_t PORT, uint16_t Pin);
 void HAL_InitGpioAF(PortName_t PORT, uint16_t Pin, uint32_t AF , GPIO_MODE_t mode );
@@ -79,4 +80,3 @@ BitState_t HAL_GetBit( PortName_t  port, uint16_t pin);
 BitState_t xHAL_GetOutBit( PortName_t  port, uint16_t pin);
 
 #endif /* HAL_HAL_GPIO_H_ */
-
