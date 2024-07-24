@@ -64,7 +64,7 @@ void vLedInit()
  */
 void vLedDriverStart(void)
 {
-   HAL_DMAInitIT(DMA1_CH5,MTOP,DMA_BYTE,(u32)&SPI2->DATAR, (u32)data,0,1,4,&LC);
+   HAL_DMAInitIT(DMA1_CH5,MTOP,DMA_BYTE,(u32)&SPI2->DATAR, (u32)data,1,4,&LC);
    HAL_TiemrEneblae(TIMER3);
    HAL_TiemrEneblae(TIMER2);
    return;
@@ -162,7 +162,7 @@ void vSetBrigth(uint8_t brigth)
 	    uint16_t pulse;
 	    pulse =  (uint16_t)( ( (float)(brigth)/MAX_BRIGTH )* PWM_TIM_PERIOD )+1;
 	    HAL_TIMER_SetPWMPulse(TIMER2, TIM_CHANNEL_1 | TIM_CHANNEL_2 | TIM_CHANNEL_3 ,pulse);
-	    HAL_TIMER_EnablePWMCH(TIMER2,0);
+	    HAL_TIMER_EnablePWMCH(TIMER2);
 	}
 }
 /*
