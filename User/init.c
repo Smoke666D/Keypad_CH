@@ -12,6 +12,7 @@
 */
 void vInit_DeviceConfig( void )
 {	
+    HAL_InitGPO();
     HAL_SetBit(CS_Port,CSPin);
     HAL_InitGpioAIN(PORT_A,GPIO_3 | GPIO_4 | GPIO_6 | GPIO_7 | GPIO_8 | GPIO_9 | GPIO_10 | GPIO_11 | GPIO_12 | GPIO_15 );
     HAL_InitGpioAIN(PORT_B,GPIO_0 | GPIO_11 | GPIO_14);
