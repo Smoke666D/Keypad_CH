@@ -99,7 +99,7 @@ typedef enum
 #define HAL_SET   1
 #define HAL_RESET 0
 
-#define DMA1_CH5_ENABLE  1
+//#define DMA1_CH5_ENABLE  1
 
 #define TIM1_UP_ENABLE 0
 #define TIM2_UP_ENABLE 0
