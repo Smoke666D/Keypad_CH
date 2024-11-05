@@ -74,7 +74,7 @@
 /***********************TIME**********************************/
 //#define TIM1_UP_ENABLE 0
 //#define TIM2_UP_ENABLE 0
-//#define TIM3_UP_ENABLE 0
+#define TIM3_UP_ENABLE
 //#define TIM4_UP_ENABLE
 //#define TIM5_UP_ENABLE
 //#define TIM6_UP_ENABLE 0

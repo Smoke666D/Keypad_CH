@@ -8,7 +8,7 @@
 #ifndef USER_DEVICE_CONFIG_H_
 #define USER_DEVICE_CONFIG_H_
 
-#include "hal_config.h"
+#include "main.h"
 
 
 

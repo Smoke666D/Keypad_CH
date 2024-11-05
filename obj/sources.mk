@@ -36,7 +36,6 @@ Debug \
 FreeRTOS \
 FreeRTOS/portable/GCC/RISC-V \
 FreeRTOS/portable/MemMang \
-HAL \
 HAL_DRIVER \
 HAL_LIB \
 Peripheral/src \
