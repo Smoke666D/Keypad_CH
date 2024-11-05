@@ -25,7 +25,6 @@ encoding//HAL/hal_dma.h=GBK
 encoding//HAL/hal_dma_ch32.c=UTF-8
 encoding//HAL/hal_gpio.h=GBK
 encoding//HAL/hal_gpio_ch32.c=UTF-8
-encoding//HAL/hal_spi_ch32.c=UTF-8
 encoding//HAL/hal_timers.h=GBK
 encoding//HAL/hal_timers_ch32.c=UTF-8
 encoding//HAL_DRIVER/hal_can.h=UTF-8

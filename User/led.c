@@ -65,21 +65,21 @@ void vLedInit()
 void vLedDriverStart(void)
 {
 
-    DMA_INIT_t init;
+   // DMA_INIT_t init;
 
-    init.stream = DMA1_CH5;
-       init.direction = MTOP;
-       init.mode  = DMA_Circular;
-       init.paddr = (u32)&SPI2->DATAR;
-       init.memadr = (u32)data;
-       init.dma_size = DMA_BYTE;
-       init.bufsize = 1;
-       init.prioroty = dma_Medium;
-       HAL_DMAInitIT(init,  1 , 4, &LC  );
+  //  init.stream = DMA1_CH5;
+   //    init.direction = MTOP;
+  //     init.mode  = DMA_Circular;
+   //    init.paddr = (u32)&SPI2->DATAR;
+  //     init.memadr = (u32)data;
+   //    init.dma_size = DMA_BYTE;
+  //     init.bufsize = 1;
+  //     init.prioroty = dma_Medium;
+  //     HAL_DMAInitIT(init,  1 , 4, &LC  );
 
 
 
-   //HAL_DMAInitIT(DMA1_CH5,MTOP,DMA_BYTE,(u32)&SPI2->DATAR, (u32)data,1,4,&LC);
+   HAL_DMAInitIT(DMA1_CH5,MTOP,DMA_BYTE,(u32)&SPI2->DATAR, (u32)data,1,4,&LC);
    HAL_TiemrEneblae(TIMER3);
    HAL_TiemrEneblae(TIMER2);
    return;

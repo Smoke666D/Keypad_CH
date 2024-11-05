@@ -39,7 +39,7 @@
 //#define DMA1_CH2_ENABLE
 //#define DMA1_CH3_ENABLE
 //#define DMA1_CH4_ENABLE
-#define DMA1_CH5_ENABLE
+#define DMA1_CH5_ENABLE 1
 //#define DMA1_CH6_ENABLE
 //#define DMA1_CH7_ENABLE
 //#define DMA2_CH1_ENABLE

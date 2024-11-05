@@ -311,9 +311,9 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="HAL/hal_dma.h|HAL/hal_dma_ch32.c|HAL_DRIVER|HAL_LIB|HW_LIB|FreeRTOS/portable/Common/mpu_wrappers.c|SRC|Core|LiteOS/components/cppsupport|User/task_sample.c|LiteOS/kal|LiteOS/third_party/cmsis/CMSIS/Core|LiteOS/components/exchook|LiteOS/third_party/cmsis|Ld|User/task_sample.h|LiteOS/components/net|LiteOS/testsuits|Startup|LiteOS/components/fs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="HAL/hal_spi_ch32.c|HAL/hal_spi.h|HAL_DRIVER|HAL_LIB|HW_LIB|FreeRTOS/portable/Common/mpu_wrappers.c|SRC|Core|LiteOS/components/cppsupport|User/task_sample.c|LiteOS/kal|LiteOS/third_party/cmsis/CMSIS/Core|LiteOS/components/exchook|LiteOS/third_party/cmsis|Ld|User/task_sample.h|LiteOS/components/net|LiteOS/testsuits|Startup|LiteOS/components/fs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry excluding="system_config.h|hal_usart.h|hal_usart.c|hal_typedef.h|hal_timers.h|hal_timers.c|hal_spi.h|hal_spi_ch32.c|hal_rtc.h|hal_rtc_ch32.c|hal_i2c.h|hal_i2c_ch32.c|hal_gpio.h|hal_gpio_ch32.c|hal_dac.h|hal_dac.c|hal_adc.h|hal_adc.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HAL_DRIVER"/>
+						<entry excluding="hal_dma.h|hal_dma.c|system_config.h|hal_usart.h|hal_usart.c|hal_typedef.h|hal_timers.h|hal_timers.c|hal_rtc.h|hal_rtc_ch32.c|hal_i2c.h|hal_i2c_ch32.c|hal_gpio.h|hal_gpio_ch32.c|hal_dac.h|hal_dac.c|hal_adc.h|hal_adc.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HAL_DRIVER"/>
 						<entry excluding="hw_lib_din.h|hw_lib_din.c|hw_lib_adc.h|hw_lib_adc.c|filters.h|filters.c|EEPROM_25C.h|EEPROM_25C.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HAL_LIB"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Ld"/>
 						<entry excluding="startup_ch32v20x.S" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Startup"/>
