@@ -64,7 +64,6 @@ void vLedInit()
  */
 void vLedDriverStart(void)
 {
-
    DMA_INIT_t init;
    init.stream = DMA1_CH5;
    init.direction = MTOP;
@@ -74,7 +73,7 @@ void vLedDriverStart(void)
    init.dma_size = DMA_BYTE;
    init.bufsize = 1;
    init.prioroty = dma_Medium;
-   HAL_DMAInitIT(init,  1 , 4, &LC  );
+   HAL_DMAInitIT(init,  DMA1_CH5_PRIOR  , DMA1_CH5_SUBPRIOR , &LC  );
    HAL_TiemrEneblae(TIMER3);
    HAL_TiemrEneblae(TIMER2);
    return;

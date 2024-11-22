@@ -32,6 +32,15 @@
 #define CORE WCH32V2
 
 
+#define DMA1_CH5_PRIOR    0
+#define DMA1_CH5_SUBPRIOR 2
+
+#define TIMER3_PRIOR      1
+#define TIMER3_SUBPRIOR   3
+
+#define CAN_PRIOR         0
+#define CAN_SUBPRIOR      1
+
 #define __SECTION(x)
 
 /****************************DMA*******************************/

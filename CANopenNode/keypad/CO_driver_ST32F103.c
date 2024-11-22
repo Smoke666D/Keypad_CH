@@ -154,7 +154,7 @@ CO_ReturnError_t CO_CANmodule_init(
     }
 
 
-       HAL_CANIntIT(CANbitRate,1,3);
+       HAL_CANIntIT(CANbitRate,CAN_PRIOR,CAN_SUBPRIOR);
 
        HAL_CANSetFiters(0, ( 0x180 | vGetNodeId() ),( 0x200 | vGetNodeId() ),( 0x300 | vGetNodeId() ),( 0x400 | vGetNodeId() ), FILTER_FIFO_0);
        HAL_CANSetFiters(1, ( 0x500 | vGetNodeId() ),( 0x600 | vGetNodeId() ),0, 0, FILTER_FIFO_1);
