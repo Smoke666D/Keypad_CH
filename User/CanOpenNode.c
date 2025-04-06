@@ -76,8 +76,8 @@ void vCanOpenProcess(void *argument)
 		/* Reset normal state */
 		 CO->CANmodule->CANnormal = false;
 		 /* Enter CAN configuration. May be NULL, default one is used in driver */
-		 CO_CANsetConfigurationMode(CO->CANmodule->CANptr);
-		 CO_CANmodule_disable(CO->CANmodule);
+		// CO_CANsetConfigurationMode(CO->CANmodule->CANptr);
+		// CO_CANmodule_disable(CO->CANmodule);
 
 		 /* Initialize CANopen */
 		  if ((err = CO_CANinit(CO, CO->CANmodule->CANptr, pendingBitRate)) != CO_ERROR_NO)

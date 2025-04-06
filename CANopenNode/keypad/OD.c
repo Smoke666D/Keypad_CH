@@ -97,7 +97,6 @@ OD_ATTR_RAM OD_RAM_t OD_RAM = {
     .x2001_digitalOutputModuleLED_ON_sub0 = 0x03,
     .x2001_digitalOutputModuleLED_ON = {0x00, 0x00, 0x00},
     .x2002_digitalOutputModuleLEDBlink_sub0 = 0x03,
-    .x2002_digitalOutputModuleLEDBlink = {0x00, 0x00, 0x00},
     .x2003_digitalOutputModuleBrightnessLevel_sub0 = 0x06,
     .x2004_keyBoardParametr_sub0 = 0x04
 };
@@ -145,6 +144,7 @@ typedef struct {
     OD_obj_var_t o_2011_setBoot_upService;
     OD_obj_var_t o_2012_setDeviceActiveOnStartup;
     OD_obj_var_t o_2013_CANopenNodeID;
+    OD_obj_var_t o_2014_testRegister;
 } ODObjs_t;
 
 static CO_PROGMEM ODObjs_t ODObjs = {
@@ -475,7 +475,7 @@ static CO_PROGMEM ODObjs_t ODObjs = {
     },
     .o_2002_digitalOutputModuleLEDBlink = {
         .dataOrig0 = &OD_RAM.x2002_digitalOutputModuleLEDBlink_sub0,
-        .dataOrig = &OD_RAM.x2002_digitalOutputModuleLEDBlink[0],
+        .dataOrig = NULL,
         .attribute0 = ODA_SDO_R,
         .attribute = ODA_SDO_RW | ODA_RPDO,
         .dataElementLength = 1,
@@ -485,13 +485,13 @@ static CO_PROGMEM ODObjs_t ODObjs = {
         .dataOrig0 = &OD_RAM.x2003_digitalOutputModuleBrightnessLevel_sub0,
         .dataOrig = NULL,
         .attribute0 = ODA_SDO_R,
-        .attribute = ODA_SDO_W | ODA_RPDO,
+        .attribute = ODA_SDO_RW | ODA_RPDO,
         .dataElementLength = 1,
         .dataElementSizeof = sizeof(uint8_t)
     },
     .o_2004_keyBoardParametr = {
         .dataOrig0 = &OD_RAM.x2004_keyBoardParametr_sub0,
-        .dataOrig =  &OD_RAM.x2004_keyBoardParametr[0],
+        .dataOrig = NULL,
         .attribute0 = ODA_SDO_R,
         .attribute = ODA_SDO_RW | ODA_RPDO,
         .dataElementLength = 1,
@@ -499,7 +499,7 @@ static CO_PROGMEM ODObjs_t ODObjs = {
     },
     .o_2005_PWM_Parametr = {
         .dataOrig0 = &OD_ROM.x2005_PWM_Parametr_sub0,
-        .dataOrig =  &OD_ROM.x2005_PWM_Parametr[0],
+        .dataOrig = NULL,
         .attribute0 = ODA_SDO_R,
         .attribute = ODA_SDO_RW | ODA_MB,
         .dataElementLength = 2,
@@ -507,22 +507,27 @@ static CO_PROGMEM ODObjs_t ODObjs = {
     },
     .o_2010_baudRateSetting = {
         .dataOrig = NULL,
-        .attribute = ODA_SDO_W,
+        .attribute = ODA_SDO_RW,
         .dataLength = 1
     },
     .o_2011_setBoot_upService = {
         .dataOrig = NULL,
-        .attribute = ODA_SDO_W,
+        .attribute = ODA_SDO_RW,
         .dataLength = 1
     },
     .o_2012_setDeviceActiveOnStartup = {
         .dataOrig = NULL,
-        .attribute = ODA_SDO_W,
+        .attribute = ODA_SDO_RW,
         .dataLength = 1
     },
     .o_2013_CANopenNodeID = {
         .dataOrig = NULL,
-        .attribute = ODA_SDO_W,
+        .attribute = ODA_SDO_RW,
+        .dataLength = 1
+    },
+    .o_2014_testRegister = {
+        .dataOrig = NULL,
+        .attribute = ODA_SDO_RW,
         .dataLength = 1
     }
 };
@@ -563,6 +568,7 @@ static OD_ATTR_OD OD_entry_t ODList[] = {
     {0x2011, 0x01, ODT_VAR, &ODObjs.o_2011_setBoot_upService, NULL},
     {0x2012, 0x01, ODT_VAR, &ODObjs.o_2012_setDeviceActiveOnStartup, NULL},
     {0x2013, 0x01, ODT_VAR, &ODObjs.o_2013_CANopenNodeID, NULL},
+    {0x2014, 0x01, ODT_VAR, &ODObjs.o_2014_testRegister, NULL},
     {0x0000, 0x00, 0, NULL, NULL}
 };
 

@@ -6,6 +6,7 @@
  */
 #include "keyboard_task.h"
 #include "hw_lib_keyboard.h"
+#include "hw_data_model.h"
 
 static TaskHandle_t  pKeybardTaskHandle    __SECTION(RAM_SECTION_CCMRAM);
 static uint8_t  STATUS[KEY_COUNT];
@@ -51,9 +52,9 @@ void vInitKeybord()
     KeyboardInit.KEYBOARD_COUNT    = KEY_COUNT;
     KeyboardInit.COUNTERS          = COUNTERS;
     KeyboardInit.STATUS            = STATUS;
-    KeyboardInit.REPEAT_TIME       = vFDGetRegState( REPEAT_TIME_ADDRESS );
-    KeyboardInit.KEYDOWN_HOLD_TIME = vFDGetRegState( KEYDOWN_HOLD_ADDRESS) ;
-    KeyboardInit.KEYDOWN_DELAY     = vFDGetRegState( KEYDOWN_DELAY_ADRRES);
+    KeyboardInit.REPEAT_TIME       = getReg8( REPEAT_TIME_ADDRESS );
+    KeyboardInit.KEYDOWN_HOLD_TIME = getReg8( KEYDOWN_HOLD_ADDRESS) ;
+    KeyboardInit.KEYDOWN_DELAY     = getReg8( KEYDOWN_DELAY_ADRRES);
     KeyboardInit.KEYBOARD_PERIOD   = 20;
     KeyboardInit.getPortCallback = &fPortState;
     eKeyboardInit(&KeyboardInit);

@@ -14,6 +14,7 @@
 #include "hal_spi.h"
 #include "ch32v20x_spi.h"
 #include "string.h"
+#include "hw_data_model.h"
 
 static uint8_t LED_ON[SPI_PACKET_SIZE] 			=         { 0x00 , 0x00 , 0x00 };
 static uint8_t LED_BLINK[SPI_PACKET_SIZE]    	=         { 0x00 , 0x00 , 0x00 };
@@ -52,9 +53,9 @@ static uint16_t calcBrigt(uint8_t pbr)
  */
 void vLedInit()
 {
-	vSetBackLigthColor(vFDGetRegState(DEF_BL_COLOR_ADR));
-	vSetLedBrigth(vFDGetRegState(DEF_LED_BRIGTH_ADR));
-	vSetBackLigth(vFDGetRegState(DEF_BL_BRIGTH_ADR));
+	vSetBackLigthColor(getReg8(DEF_BL_COLOR_ADR)   );
+	vSetLedBrigth(     getReg8(DEF_LED_BRIGTH_ADR) );
+	vSetBackLigth(     getReg8(DEF_BL_BRIGTH_ADR)  );
     vSetBrigth(MAX_BRIGTH);
     return;
 }
@@ -87,6 +88,12 @@ void vSetLedOn(uint8_t Color,uint8_t State)
 	LED_ON[Color-1] = State;
 	return;
 }
+
+uint8_t uGetLedState( uint8_t Color )
+{
+    return (LED_ON[Color-1]);
+}
+
 /*
  *
  */

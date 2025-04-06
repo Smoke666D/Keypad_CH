@@ -64,7 +64,7 @@ void vSetLedOn(uint8_t Color,uint8_t State);
 void vSetLedBlink(uint8_t Color,uint8_t State);
 void vSetBrigth(uint8_t brigth);
 void vLedInit();
-
+uint8_t uGetLedState( uint8_t Color );
 void vSetBackLigth(uint8_t brigth);
 void vLedDriverStart(void);
 void vLedProcess( void );

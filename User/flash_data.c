@@ -12,121 +12,88 @@
 #include "CO_ODinterface.h"
 #include "OD.h"
 #include "hal_flash.h"
+#include "hal_wdt.h"
+#include "hw_data_model.h"
 
-
-
-static uint8_t FisrtStart = 1; // 0         1    2     3     4     5      6     7  8  9  10
-static uint8_t SettingsREG[REG_SIZE]={VALID_CODE, 0x03, 0x15, 0x01, 0x3F, 0x00, WHITE, 1 ,2, 2, 4, 3, 00, 44,00,55};
 static uint8_t *MEM_If_Read_FS(uint8_t *src, uint8_t *dest, uint32_t Len);
-
-;
 static void vFDWtiteReg(void);
 
-void * cgetREGAdr(uint8_t adr)
-{
-	return ((void *)&SettingsREG[adr]);
-}
 
 static void vFDWtiteReg(void)
 {
 	uint8_t * src = (uint8_t *) FLASH_DATA_ADR;
 	HAL_FLASH_ErasePage(FLASH_DATA_ADR);
-	HAL_FLASH_WriteByWord(&SettingsREG[0], src, sizeof(SettingsREG));
+	HAL_FLASH_WriteByWord(GetDataRegister(), src, REG_SIZE );
 	HAL_FLASH_Lock();
 }
 
 void vFDInit( void )
 {
 	uint8_t * src =  (uint8_t *) FLASH_DATA_ADR;
-	uint8_t  buff;
-	if (FisrtStart)
+	MEM_If_Read_FS(src, GetDataRegister(), REG_SIZE );
+	if (getReg8(CODE_ADR)!= VALID_CODE)
 	{
-	   MEM_If_Read_FS(src, &buff, 1);
-	   if (buff!= VALID_CODE)
-	   {
-		   vFDWtiteReg();
-		   MEM_If_Read_FS(src, &buff, 1);
-	   }
-		MEM_If_Read_FS(src, &SettingsREG[0],  sizeof(SettingsREG));
-		FisrtStart = 0;
-		OD_set_value(OD_ENTRY_H2004_keyBoardParametr,0x01,&SettingsREG[KEYBOARD_PERIOD_ADRRES ], 1, true);
-		OD_set_value(OD_ENTRY_H2004_keyBoardParametr,0x02,&SettingsREG[KEYBOARD_PERIOD_ADRRES +1 ], 1, true);
-		OD_set_value(OD_ENTRY_H2004_keyBoardParametr,0x03,&SettingsREG[KEYBOARD_PERIOD_ADRRES +2 ], 1, true);
-		OD_set_value(OD_ENTRY_H2004_keyBoardParametr,0x04,&SettingsREG[KEYBOARD_PERIOD_ADRRES +3 ], 1, true);
-		OD_set_value(OD_ENTRY_H2005_PWM_Parametr,0x01,&SettingsREG[KEYBOARD_PERIOD_ADRRES +3 ], 1, true);
-		OD_set_value(OD_ENTRY_H2005_PWM_Parametr,0x02,&SettingsREG[KEYBOARD_PERIOD_ADRRES +3 ], 1, true);
+	    vSetNodeID( 0x15);
+	    vSetBitrate(2);
+	    setReg8( NMT_STATE_ADR, 1 );
+	    setReg8( DEF_LED_BRIGTH_ADR , 0x3F);
+	    setReg8( DEF_BL_BRIGTH_ADR  , 0 );
+	    setReg8( DEF_BL_COLOR_ADR,  WHITE);
+        setReg8( NMT_START_MESSAGE , 1 );
+        setReg8( KEYBOARD_PERIOD_ADRRES ,2 );
+        setReg8( KEYDOWN_DELAY_ADRRES , 2 );
+        setReg8( KEYDOWN_HOLD_ADDRESS  , 4 );
+        setReg8( REPEAT_TIME_ADDRESS, 3 );
+        setReg16( PWM_PERIOD_ADDRESS , 0 );
+        setReg16( PWM_DUTY_ADDRESS, 44 );
+        setReg8( TEST_START, 1 );
+        vFDWtiteReg();
+        MEM_If_Read_FS(src, GetDataRegister(), REG_SIZE );
 	}
+	if (( vGetBitrate()==0x00) || ( vGetBitrate()==0xFF)) vSetBitrate(2);
+	if (( vGetNodeId() ==0x00)|| ( vGetNodeId() ==0xFF) ) vSetNodeID( 0x20);
+    OD_set_value(OD_ENTRY_H2004_keyBoardParametr,0x01,GetRegisterAddr(KEYBOARD_PERIOD_ADRRES ), 1, true);
+	OD_set_value(OD_ENTRY_H2004_keyBoardParametr,0x02,GetRegisterAddr(KEYBOARD_PERIOD_ADRRES +1) , 1, true);
+	OD_set_value(OD_ENTRY_H2004_keyBoardParametr,0x03,GetRegisterAddr(KEYBOARD_PERIOD_ADRRES +2 ), 1, true);
+	OD_set_value(OD_ENTRY_H2004_keyBoardParametr,0x04,GetRegisterAddr(KEYBOARD_PERIOD_ADRRES +3 ), 1, true);
+	OD_set_value(OD_ENTRY_H2005_PWM_Parametr,0x01,GetRegisterAddr(KEYBOARD_PERIOD_ADRRES +3 ), 1, true);
+	OD_set_value(OD_ENTRY_H2005_PWM_Parametr,0x02,GetRegisterAddr(KEYBOARD_PERIOD_ADRRES +3 ), 1, true);
 }
 /*
  *
  */
 void vFDSetRegState(uint8_t adr, uint8_t state)
 {
-	SettingsREG[adr]= state;
+	setReg8(adr,state);
 	vFDWtiteReg();
 }
-
 
 /*
  *
  */
 void vFDSetRegState16(uint8_t adr, uint16_t state)
 {
-	memmove(&SettingsREG[adr], &state, sizeof(state));
+	setReg16(adr,state);
 	vFDWtiteReg();
 }
 
-
-uint8_t vFDGetRegState(uint8_t adr)
-{
-	if (FisrtStart)
-	{
-	  vFDInit();
-	}
-	return SettingsREG[adr];
-}
-
+/*
+* 圾抉戒志把忘投忘快技 戒扶忘折快扶我快 扼抗抉把抉扼找我 CAN 我戒 EEPROM
+*/
 uint16_t vGetBitrate()
 {
-	uint16_t data = 0;
-	 if (FisrtStart)
-	 {
-		  vFDInit();
-	 }
-	switch(SettingsREG[BITRATE_ADR])
-	{
-		case 0x00:
-			data = 1000;
-			break;
-		case 0x02:
-			data = 500;
-			break;
-		case 0x03:
-			data = 250;
-			break;
-		case 0x04:
-			data = 125;
-			break;
-		case 0x06:
-			data =50;
-			break;
-		case 0x07:
-			data = 20;
-			break;
-		default:
-			data = 125;
-			break;
-	}
-    return data;
+       return (OB->Data0 & 0xFF);
+}
+
+void vSetBitrate( uint8_t data)
+{
+    ProgramOptionByteData(0,data) ;
 }
 
 uint16_t vFDGetNMTState( void )
 {
 	 uint16_t res = 0;
-	 if (FisrtStart) {
-	   vFDInit();
-     }
-	 if (SettingsREG[NMT_STATE_ADR] == 0x01) {
+	 if (getReg8(NMT_STATE_ADR) == 0x01) {
 		 res = CO_NMT_STARTUP_TO_OPERATIONAL;
 	 }
 	 return res;
@@ -134,21 +101,17 @@ uint16_t vFDGetNMTState( void )
 
 uint8_t vFDGetStartMessage( void )
 {
-	if (FisrtStart)
-	  {
-		  vFDInit();
-	  }
-	  return SettingsREG[NMT_START_MESSAGE];
-
+	  return getReg8(NMT_START_MESSAGE);
 }
 
 uint8_t vGetNodeId( void )
 {
-  if (FisrtStart)
-  {
-	  vFDInit();
-  }
-  return SettingsREG[NODE_ID_ADR];
+  return ( OB->Data1 & 0xFF );
+}
+
+void vSetNodeID( uint8_t data)
+{
+    ProgramOptionByteData(1,data) ;
 }
 
 

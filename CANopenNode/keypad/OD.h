@@ -12,11 +12,11 @@
     File info:
         File Names:   OD.h; OD.c
         Project File: KEYPAD.xdd
-        File Version: 3
+        File Version: 4
 
         Created:      31.01.2017 17:13:00
         Created By:   Smoke666
-        Modified:     01.11.2022 16:58:05
+        Modified:     06.04.2025 15:53:21
         Modified By:  rOBIN 2
 
     Device Info:
@@ -110,9 +110,7 @@ typedef struct {
         uint32_t mappedObject_4;
         uint32_t mappedObject_5;
     } x1A00_TPDOMappingParameter;
-    uint16_t x2005_PWM_Parametr[OD_CNT_ARR_2005];
     uint8_t x2005_PWM_Parametr_sub0;
-
 } OD_ROM_t;
 
 typedef struct {
@@ -134,11 +132,8 @@ typedef struct {
     uint8_t x2001_digitalOutputModuleLED_ON_sub0;
     uint8_t x2001_digitalOutputModuleLED_ON[OD_CNT_ARR_2001];
     uint8_t x2002_digitalOutputModuleLEDBlink_sub0;
-    uint8_t x2002_digitalOutputModuleLEDBlink[OD_CNT_ARR_2002];
     uint8_t x2003_digitalOutputModuleBrightnessLevel_sub0;
-    uint8_t x2004_keyBoardParametr[OD_CNT_ARR_2004];
     uint8_t x2004_keyBoardParametr_sub0;
-
 } OD_RAM_t;
 
 typedef struct {
@@ -202,6 +197,7 @@ extern OD_ATTR_OD OD_t *OD;
 #define OD_ENTRY_H2011 &OD->list[28]
 #define OD_ENTRY_H2012 &OD->list[29]
 #define OD_ENTRY_H2013 &OD->list[30]
+#define OD_ENTRY_H2014 &OD->list[31]
 
 
 /*******************************************************************************
@@ -238,6 +234,7 @@ extern OD_ATTR_OD OD_t *OD;
 #define OD_ENTRY_H2011_setBoot_upService &OD->list[28]
 #define OD_ENTRY_H2012_setDeviceActiveOnStartup &OD->list[29]
 #define OD_ENTRY_H2013_CANopenNodeID &OD->list[30]
+#define OD_ENTRY_H2014_testRegister &OD->list[31]
 
 
 /*******************************************************************************

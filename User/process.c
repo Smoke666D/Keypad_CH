@@ -7,11 +7,12 @@
 
 #include "process.h"
 #include "system_init.h"
+#include "hw_data_model.h"
 
 
 static TaskHandle_t  pProcessTaskHandle    __SECTION(RAM_SECTION_CCMRAM);
 static uint8_t key_mask;
-static uint8_t data;
+
 static QueueHandle_t     pKeyboard        = NULL;
 static KeyEvent          TempEvent        = { 0U };
 
@@ -21,10 +22,16 @@ TaskHandle_t * xProcessTaskHandle ()
 }
 
 static ODR_t OD_writeLed(OD_stream_t *stream,const  void *buf, OD_size_t count, OD_size_t *countWritten);
+static ODR_t OD_readLed(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead);
+static ODR_t OD_writeTest(OD_stream_t *stream,const  void *buf, OD_size_t count, OD_size_t *countWritten);
+static ODR_t OD_readTest(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead);
 static ODR_t OD_writeBlink(OD_stream_t *stream,const void *buf, OD_size_t count, OD_size_t *countWritten);
 static ODR_t OD_writeBRIGTH(OD_stream_t *stream,const void *buf,OD_size_t count, OD_size_t *countWritten);
+static ODR_t OD_readBRIGTH(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead);
 static ODR_t OD_writeNode(OD_stream_t *stream,const void *buf, OD_size_t count, OD_size_t *countWritten);
+static ODR_t OD_readNode(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead);
 static ODR_t OD_writeBITRATE(OD_stream_t *stream,const void *buf, OD_size_t count, OD_size_t *countWritten);
+static ODR_t OD_readBITRATE(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead);
 static ODR_t OD_writeNMT(OD_stream_t *stream, const void *buf, OD_size_t count, OD_size_t *countWritten);
 static ODR_t OD_writePWM(OD_stream_t *stream, const void *buf, OD_size_t count, OD_size_t *countWritten);
 static ODR_t OD_writeKeyboardParametr(OD_stream_t *stream, const void *buf, OD_size_t count, OD_size_t *countWritten);
@@ -33,7 +40,7 @@ static ODR_t OD_readKeyboardParametr(OD_stream_t *stream, void *buf, OD_size_t c
 /* Variables used for triggering TPDO, see simulation in app_programRt(). */
 OD_extension_t OD_LED_data_extension = {
     .object = NULL,
-    .read =  OD_readOriginal,
+    .read =  OD_readLed,
     .write = OD_writeLed
 };
 
@@ -45,7 +52,7 @@ OD_extension_t OD_BLINK_data_extension = {
 
 OD_extension_t OD_BRIGTH_data_extension = {
     .object = NULL,
-    .read =   OD_readOriginal,
+    .read =   OD_readBRIGTH,
     .write =  OD_writeBRIGTH
 };
 
@@ -58,14 +65,14 @@ OD_extension_t OD_KEY_extension = {
 
 OD_extension_t OD_NODE_data_extension = {
     .object = NULL,
-    .read =   NULL,
-    .write = OD_writeNode
+    .read =   OD_readNode,
+    .write =  OD_writeNode
 };
 
 OD_extension_t OD_BITRATE_data_extension = {
     .object = NULL,
-    .read =   NULL,
-    .write = OD_writeBITRATE
+    .read   = OD_readBITRATE,
+    .write  = OD_writeBITRATE
 };
 
 OD_extension_t OD_NMT_data_extension = {
@@ -77,7 +84,7 @@ OD_extension_t OD_NMT_data_extension = {
 
 OD_extension_t OD_keyBoardParametr_extension = {
     .object = NULL,
-    .read =  OD_readOriginal,
+    .read =  OD_readKeyboardParametr,
     .write = OD_writeKeyboardParametr
 };
 
@@ -87,14 +94,18 @@ OD_extension_t OD_PWM_extension = {
     .write = OD_writePWM
 };
 
+OD_extension_t OD_Test_extension = {
+    .object = NULL,
+    .read =  OD_readTest,
+    .write = OD_writeTest
+};
+
 uint8_t *OD_KEY_flagsPDO = NULL;
 
 
 
 void vProceesInit( void)
 {
-
-
 	pKeyboard = *( xKeyboardQueue());
 	OD_extension_init(OD_ENTRY_H2000_digitalInputModuleKeysStates, &OD_KEY_extension);
 	OD_extension_init(OD_ENTRY_H2001_digitalOutputModuleLED_ON, &OD_LED_data_extension);
@@ -105,6 +116,7 @@ void vProceesInit( void)
 	OD_extension_init(OD_ENTRY_H2010_baudRateSetting, &OD_BITRATE_data_extension);
 	OD_extension_init(OD_ENTRY_H2004_keyBoardParametr, &OD_keyBoardParametr_extension);
 	OD_extension_init(OD_ENTRY_H2005_PWM_Parametr, &OD_PWM_extension);
+	OD_extension_init(OD_ENTRY_H2014_testRegister, &OD_Test_extension);
 	OD_KEY_flagsPDO = OD_getFlagsPDO(OD_ENTRY_H2000_digitalInputModuleKeysStates);
 }
 
@@ -112,69 +124,50 @@ void vProceesInit( void)
 
 static ODR_t OD_writePWM(OD_stream_t *stream, const void *buf, OD_size_t count, OD_size_t *countWritten)
 {
-	ODR_t res = ODR_DEV_INCOMPAT;
-	if ((stream != NULL) && (buf != NULL) && (countWritten != NULL))
+	if ( stream->subIndex == PWM_PERIOD_SUBINDEX)
 	{
-		switch (stream->subIndex)
-		{
-			case PWM_PERIOD_SUBINDEX:
-				vFDSetRegState16(PWM_PERIOD_ADDRESS  , CO_getUint16(buf) );
-				break;
-		   case PWM_DUTY_SUBINDEX :
-			   	vFDSetRegState16( PWM_DUTY_ADDRESS  , CO_getUint16(buf) );
-			  	break;
-		  default:
-			  res =  ODR_INVALID_VALUE;
-			  break;
-		}
-		if ( res !=  ODR_INVALID_VALUE)
-		{
-			res = OD_writeOriginal(stream, buf, count, countWritten);
-		}
+	    vFDSetRegState16(PWM_PERIOD_ADDRESS  , CO_getUint16(buf) );
 	}
-	return ( res );
+	else
+	{
+	   vFDSetRegState16( PWM_DUTY_ADDRESS  , CO_getUint16(buf) );
+
+	}
+
+	*countWritten = sizeof(uint16_t);
+	return ( ODR_OK  );
 
 }
 static ODR_t OD_writeKeyboardParametr(OD_stream_t *stream, const void *buf, OD_size_t count, OD_size_t *countWritten)
 {
-	ODR_t res = ODR_DEV_INCOMPAT;
-	if ((stream != NULL) && (buf != NULL) && (countWritten != NULL))
-	{
-		switch (stream->subIndex)
-		{
-	       		    case KEYBOARD_PERIOD_SUBINDEX:
-	       		    	vFDSetRegState( KEYBOARD_PERIOD_ADRRES , CO_getUint8(buf) );
-	       		    	break;
-	       		    case KEYDOWN_DELAY_SUBINDEX:
-	       		    	vFDSetRegState( KEYDOWN_DELAY_ADRRES  , CO_getUint8(buf) );
-	       		    	break;
-	       		    case KEYDOWN_HOLD_SUBINDEX :
-	       		    	vFDSetRegState(KEYDOWN_HOLD_ADDRESS  , CO_getUint8(buf) );
-	       		    	break;
-	       		    case REPEAT_TIME_SUBINDEX :
-	       		    	vFDSetRegState( REPEAT_TIME_ADDRESS  , CO_getUint8(buf) );
-	       		    	break;
-	       		    default:
-	       		    	res =  ODR_INVALID_VALUE;
-	       		    	break;
-		}
-		if ( res !=  ODR_INVALID_VALUE)
-		{
-			res = OD_writeOriginal(stream, buf, count, countWritten);
-			res = ODR_OK;
-		}
+
+	switch (stream->subIndex)
+    {
+	    case KEYBOARD_PERIOD_SUBINDEX:
+	        vFDSetRegState( KEYBOARD_PERIOD_ADRRES , CO_getUint8(buf) );
+	        break;
+	    case KEYDOWN_DELAY_SUBINDEX:
+	        vFDSetRegState( KEYDOWN_DELAY_ADRRES  , CO_getUint8(buf) );
+	        break;
+	    case KEYDOWN_HOLD_SUBINDEX :
+	        vFDSetRegState(KEYDOWN_HOLD_ADDRESS  , CO_getUint8(buf) );
+	        break;
+	    case REPEAT_TIME_SUBINDEX :
+	        default:
+	        vFDSetRegState( REPEAT_TIME_ADDRESS  , CO_getUint8(buf) );
+	        break;
 	}
-	return ( res );
+    *countWritten = sizeof(uint8_t);
+	return ( ODR_OK );
 }
+
 
 
 static ODR_t OD_readKeyboardParametr(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead)
 {
- 	if  (stream != NULL)
- 	{
- 		stream->dataOrig = cgetREGAdr(KEYBOARD_PERIOD_ADRRES);
- 	}
-    return  OD_readOriginal(stream, buf, count, countRead);;
+ 	CO_setUint8(buf,getReg8(KEYBOARD_PERIOD_ADRRES));
+    *countRead = sizeof(uint8_t);
+    return (ODR_OK);
 }
 
 
@@ -209,12 +202,11 @@ ODR_t OD_writeNMT(OD_stream_t *stream,const void *buf,  OD_size_t count, OD_size
  */
 ODR_t OD_writeNode(OD_stream_t *stream,const  void *buf, OD_size_t count, OD_size_t *countWritten)
 {
-	if (stream == NULL || buf == NULL || countWritten == NULL) {
-		return (  ODR_DEV_INCOMPAT );
-	}
-	if ( ( CO_getUint8(buf) >= MIN_NODE_ID ) && ( CO_getUint8(buf) <= MAX_NODE_ID ) )
+    uint8_t data =   CO_getUint8(buf);
+	if ( ( data != 0 ) && ( data  == 0xFF) )
 	{
-		vFDSetRegState( NODE_ID_ADR , CO_getUint8(buf) );
+	    vSetNodeID( data );
+	    *countWritten = sizeof(uint8_t);
 	}
 	else
 	{
@@ -223,48 +215,77 @@ ODR_t OD_writeNode(OD_stream_t *stream,const  void *buf, OD_size_t count, OD_siz
 	return ( ODR_OK );
 }
 
+ODR_t OD_readNode(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead)
+{
+    CO_setUint8(buf,vGetNodeId());
+    *countRead = sizeof(uint8_t);
+    return (ODR_OK);
+}
+
+
+
 /*
  * 	Callback функция записи в oбъект 2010. Скорость CAN. Принимает значения от 0 до 7
  */
 ODR_t OD_writeBITRATE(OD_stream_t *stream,const  void *buf,
                       OD_size_t count, OD_size_t *countWritten)
 {
-	if (stream == NULL || buf == NULL || countWritten == NULL)
-	{
-		return  ( ODR_DEV_INCOMPAT );
-	}
 	if  ( CO_getUint8(buf) <= MAX_BITRATE )
 	{
-		 vFDSetRegState( BITRATE_ADR  , CO_getUint8(buf) );
+	    *countWritten = sizeof(uint8_t);
+	    vSetBitrate( CO_getUint8(buf) );
 	}
-	else {
+	else
+	{
+	    *countWritten = 0;
 	     return ( ODR_INVALID_VALUE );
 	}
 	return ( ODR_OK );
+}
+
+
+ODR_t OD_readBITRATE(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead)
+{
+    CO_setUint8(buf,vGetBitrate());
+    *countRead = sizeof(uint8_t);
+    return (ODR_OK);
 }
 /*
  *
  */
 ODR_t OD_writeLed(OD_stream_t *stream,const  void *buf, OD_size_t count, OD_size_t *countWritten)
 {
-	ODR_t res = ODR_DEV_INCOMPAT;
-	if ((stream != NULL) && (buf != NULL) && (countWritten != NULL))
+    *countWritten = sizeof(uint8_t);
+    switch (stream->subIndex)
 	{
-		switch (stream->subIndex)
-		{
 			case RED_COLOR:
 			case GREEN_COLOR:
 			case BLUE_COLOR:
-
 				vSetLedOn(stream->subIndex,CO_getUint8(buf));
-				res = OD_writeOriginal(stream, buf, count, countWritten);
-				printf("Color%d %d\r\n",stream->subIndex, CO_getUint8(buf));
 				break;
-			default:
-				res = ODR_SUB_NOT_EXIST;
-		}
 	}
-	return ( res );
+	return ( ODR_OK );
+}
+
+ODR_t OD_readLed(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead)
+{
+    CO_setUint8(buf,uGetLedState(stream->subIndex));
+    *countRead = sizeof(uint8_t);
+    return (ODR_OK);
+}
+
+
+static ODR_t OD_writeTest(OD_stream_t *stream,const  void *buf, OD_size_t count, OD_size_t *countWritten)
+{
+    *countWritten = sizeof(uint8_t);
+    vFDSetRegState(TEST_START,CO_getUint8(buf));
+    return (ODR_OK);
+}
+static ODR_t OD_readTest(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead)
+{
+    CO_setUint8(buf,getReg8(TEST_START));
+     *countRead = sizeof(uint8_t);
+     return (ODR_OK);
 }
 
 ODR_t OD_writeBlink(OD_stream_t *stream,const  void *buf,
@@ -290,10 +311,6 @@ ODR_t OD_writeBRIGTH(OD_stream_t *stream,const void *buf,
                       OD_size_t count, OD_size_t *countWritten)
 {
 
-	if (stream == NULL || buf == NULL || countWritten == NULL)
-	{
-        return ( ODR_DEV_INCOMPAT );
-	}
 
 
     if  ( ( stream->subIndex == 1U ) ||  ( stream->subIndex == 2U ) ||  ( stream->subIndex == 5U ) ||  ( stream->subIndex == 6U ) ) {
@@ -310,7 +327,7 @@ ODR_t OD_writeBRIGTH(OD_stream_t *stream,const void *buf,
        		    	vFDSetRegState( DEF_LED_BRIGTH_ADR , CO_getUint8(buf) );
        		    	break;
        		    case 6U:
-       		    	vFDSetRegState(  DEF_BL_BRIGTH_ADR , CO_getUint8(buf) );
+       		    	vFDSetRegState( DEF_BL_BRIGTH_ADR , CO_getUint8(buf) );
        		    	break;
        		}
        	}
@@ -344,16 +361,88 @@ ODR_t OD_writeBRIGTH(OD_stream_t *stream,const void *buf,
 }
 
 
+static ODR_t OD_readBRIGTH(OD_stream_t *stream, void *buf, OD_size_t count, OD_size_t *countRead)
+{
+
+    switch (stream->subIndex)
+    {
+            case 1:
+                CO_setUint8(buf,vGetNodeId());
+                break;
+            case 2:
+                CO_setUint8(buf,vGetNodeId());
+                break;
+            case 3:
+                CO_setUint8(buf,vGetNodeId());
+                break;
+            case 4:
+                CO_setUint8(buf,getReg8(DEF_BL_COLOR_ADR));
+                break;
+            case 5:
+                CO_setUint8(buf,getReg8(DEF_LED_BRIGTH_ADR));
+                break;
+            case 6:
+                CO_setUint8(buf,getReg8(DEF_BL_BRIGTH_ADR));
+                break;
+
+
+    }
+
+       *countRead = sizeof(uint8_t);
+       return (ODR_OK);
+}
+
+uint16_t test_fsm = 0;
+
+void vTestFunction( uint16_t * test_counter, uint8_t  keymask )
+{
+    uint8_t  test_mask ;
+    if (++(*test_counter) == 100)
+    {
+        *test_counter = 0;
+        test_fsm++;
+        vSetLedOn(0x01,0);
+        vSetLedOn(0x02,0);
+        vSetLedOn(0x03,0);
+        if (test_fsm <= 8 )
+        {
+            test_mask = 0x01<<test_fsm;
+            vSetLedOn(0x01,test_mask );
+        }
+        else
+            if (test_fsm <= 16 )
+            {
+                test_mask = 0x01<<(test_fsm -8);
+                vSetLedOn(0x02,test_mask );
+            }
+            else
+                if (test_fsm <= 24)
+                {
+                    test_mask = 0x01<<(test_fsm -16);
+                    vSetLedOn(0x03,test_mask );
+
+                }
+                else
+                    test_fsm = 0;
+    }
+    if (keymask)
+    {
+        vSetLedOn(0x01,keymask);
+        vSetLedOn(0x02,keymask);
+        vSetLedOn(0x03,keymask);
+    }
+}
 /*
  *
  */
 void vProcessTask( void * argument )
 {
+    static uint8_t data;
+    static uint16_t test_counter = 0;
 	for(;;)
 	{
 		/*Обработка событий от клавиатуры*/
 		vTaskDelay(1);
-
 		if ( uxQueueMessagesWaiting(pKeyboard) != 0)
 		{
 			xQueueReceive( pKeyboard, &TempEvent,portMAX_DELAY );
@@ -387,10 +476,9 @@ void vProcessTask( void * argument )
 				   key_mask = 0U;
 				   break;
 			}
-			OD_get_value(OD_ENTRY_H2000_digitalInputModuleKeysStates,0x01,&data,1,true);
 			if ( TempEvent.Status == MAKECODE )
 			{
-				 data |= key_mask;
+				data |= key_mask;
 			}
 			else
 			{
@@ -399,6 +487,13 @@ void vProcessTask( void * argument )
 			OD_set_value(OD_ENTRY_H2000_digitalInputModuleKeysStates,0x01,&data,1,true);
 			OD_requestTPDO(OD_KEY_flagsPDO,1);
 		}
+		if(  getReg8(TEST_START)!=0 )
+		{
+		    vTestFunction(&test_counter,data);
+		}
 	}
 }
+
+
+
 

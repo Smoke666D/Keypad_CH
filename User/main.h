@@ -41,7 +41,7 @@
 #define CAN_PRIOR         0
 #define CAN_SUBPRIOR      1
 
-#define __SECTION(x)
+#define INIT_FUNC_LOC
 
 /****************************DMA*******************************/
 //#define DMA1_CH1_ENABLE
