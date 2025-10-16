@@ -31,6 +31,7 @@
  */
 #define CORE WCH32V2
 
+#define INIT_FUNC_LOC __attribute__((section(".stext")))
 
 #define DMA1_CH5_PRIOR    0
 #define DMA1_CH5_SUBPRIOR 2
@@ -41,7 +42,7 @@
 #define CAN_PRIOR         0
 #define CAN_SUBPRIOR      1
 
-#define INIT_FUNC_LOC
+
 
 /****************************DMA*******************************/
 //#define DMA1_CH1_ENABLE

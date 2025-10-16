@@ -82,12 +82,13 @@ void vFDSetRegState16(uint8_t adr, uint16_t state)
 */
 uint16_t vGetBitrate()
 {
-       return (OB->Data0 & 0xFF);
+       return (OB->Data0 & 0xF);
 }
 
 void vSetBitrate( uint8_t data)
 {
-    ProgramOptionByteData(0,data) ;
+    uint8_t temp = OB->Data0 & 0x80;
+    ProgramOptionByteData(0,temp | (data & 0x7F )) ;
 }
 
 uint16_t vFDGetNMTState( void )

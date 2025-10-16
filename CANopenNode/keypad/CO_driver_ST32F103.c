@@ -253,6 +253,7 @@ static uint32_t prv_send_can_message(CO_CANmodule_t* CANmodule, CO_CANtx_t *buff
     CAN_TX_FRAME_TYPE txmsg;
     txmsg.DLC = (uint32_t)buffer->DLC;
     txmsg.ident = buffer->ident;
+    txmsg.id_type = HAL_CAN_STD_ID;
     memcpy(txmsg.data,buffer->data,buffer->DLC);
     error_code = HAL_CANSend(&txmsg);
 
